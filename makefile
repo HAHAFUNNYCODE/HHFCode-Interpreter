@@ -7,9 +7,6 @@ STD=c++11
 build: checkdir $(OBJDIR)/main.o $(OBJDIR)/parser.o $(OBJDIR)/interpreter.o $(OBJDIR)/lexer.o
 	$(CC) -o $(BINDIR)/$(BIN) $(OBJDIR)/*.o -std=$(STD)
 
-force:
-	$(CC) -o $(BINDIR)/$(BIN) $(OBJDIR)/*.o -std=$(STD)
-
 run: build
 	./$(BINDIR)/$(BIN)
 
