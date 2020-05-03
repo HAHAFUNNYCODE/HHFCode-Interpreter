@@ -7,7 +7,19 @@
 #include "lexemes.h"
 
 class ClosedLexStreamException;
-class FinishedLexStremaException;
+class FinishedLexStreamException;
+
+class ClosedLexStreamException : std::exception {
+    const char* what () const throw() {
+        return "Cannot update closed stream.";
+    }
+};
+
+class FinishedLexStreamException : std::exception {
+    const char* what () const throw() {
+        return "Tried to access value from ended stream";
+    }
+};
 
 
 class LexemeStream {
@@ -34,26 +46,13 @@ class LexemeStream {
 
     Lexeme next(){ //Returns the next lexeme in the stream.
         if (done)
-            throw FinishedLexStremaException();
+            throw FinishedLexStreamException();
 
         Lexeme nextLex = stream.front();
         if (nextLex.getType() == FILEEND)
             done = true;
         stream.pop();
         return nextLex;
-    }
-};
-
-
-class ClosedLexStreamException : std::exception {
-    const char* what () const throw() {
-        return "Cannot update closed stream.";
-    }
-};
-
-class FinishedLexStremaException : std::exception {
-    const char* what () const throw() {
-        return "Tried to access value from ended stream";
     }
 };
 

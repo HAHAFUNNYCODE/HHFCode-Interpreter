@@ -1,11 +1,12 @@
-#include <cstdio>
+#include <iostream>
 
 #include "main.h"
-#include "interpreter.h"
-#include "parser.h"
+#include "lexer/lexer.h"
 
 int main(){
-    printf("%s\n",getStringInt().c_str());
-    printf("%s\n", getStringParse().c_str());
+    Lexer lex;
+    std::string s = "f";
+    lex.tokenize(s);
+    std::cout << lexemeSymbols[KEYWORD] << std::endl;
     return 0;
 }

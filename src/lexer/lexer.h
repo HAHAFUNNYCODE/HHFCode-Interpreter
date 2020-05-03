@@ -12,7 +12,7 @@ class Lexer{
     //Member functions
     private:;
     public:
-        LexemeStream tokenize(std::string);
+        LexemeStream tokenize(std::string& input);
 };
 
 #endif //LEXER_H
