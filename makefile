@@ -10,6 +10,9 @@ build: checkdir $(OBJDIR)/main.o $(OBJDIR)/parser.o $(OBJDIR)/interpreter.o $(OB
 run: build
 	./$(BINDIR)/$(BIN)
 
+test: build
+	./$(BINDIR)/$(BIN) testfile.txt
+
 $(OBJDIR)/main.o: src/main.h src/main.cpp $(OBJDIR)/lexer.o
 	$(CC) -c src/main.cpp -o $(OBJDIR)/main.o -std=$(STD)
 
@@ -34,8 +37,9 @@ force:
 	$(CC) -o $(BINDIR)/$(BIN) $(OBJDIR)/*.o -std=$(STD)
 
 clean:
-	rm build/*
-	rm bin/hhfi
+	rm $(OBJDIR)/*
+	rm $(BINDIR)/$(BIN)
+	rmdir $(OBJDIR) $(BINDIR)
 
 checkdir:
 	if ! [ -d "$(OBJDIR)" ]; then mkdir $(OBJDIR); fi

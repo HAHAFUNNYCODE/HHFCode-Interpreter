@@ -23,10 +23,10 @@ LexemeStream Lexer::tokenize(std::string &input){
             input = input.substr(1,input.size()-1);
             break;
         default:
-            std::cout << "CUR: " << input << std::endl;
+            // std::cout << "CUR: " << input << std::endl;
             for(LexerPattern p : patterns){
                 bool found = false;
-                std::cout << "RUNNING: " << lexemeNames[p.type] << std::endl;
+                // std::cout << "RUNNING: " << lexemeNames[p.type] << std::endl;
                 if(std::regex_search(input, match, p.pattern)){
                     for(int i = 1; i <= p.groups; i++){
                         if(match.str(i) != ""){
@@ -57,16 +57,18 @@ void Lexer::addPattern(Token t, std::string p, int g){
 }
 
 void Lexer::loadPatterns(){
-    std::cout << "Adding: " << lexemeNames[COMMENT] << std::endl;
+    // std::cout << "Adding: " << lexemeNames[COMMENT] << std::endl;
     addPattern(COMMENT,    lexemeSymbols[COMMENT],    2);
-    std::cout << "Adding: " << lexemeNames[KEYWORD] << std::endl;
+    // std::cout << "Adding: " << lexemeNames[KEYWORD] << std::endl;
     addPattern(KEYWORD,    lexemeSymbols[KEYWORD],    1);
-    std::cout << "Adding: " << lexemeNames[SEPARATOR] << std::endl;
+    // std::cout << "Adding: " << lexemeNames[SEPARATOR] << std::endl;
     addPattern(SEPARATOR,  lexemeSymbols[SEPARATOR],  1);
-    std::cout << "Adding: " << lexemeNames[OPERATOR] << std::endl;
+    // std::cout << "Adding: " << lexemeNames[OPERATOR] << std::endl;
     addPattern(OPERATOR,   lexemeSymbols[OPERATOR],   1);
-    std::cout << "Adding: " << lexemeNames[LITERAL] << std::endl;
+    // std::cout << "Adding: " << lexemeNames[LITERAL] << std::endl;
     addPattern(LITERAL,    lexemeSymbols[LITERAL],    1);
-    std::cout << "Adding: " << lexemeNames[IDENTIFIER] << std::endl;
+    // std::cout << "Adding: " << lexemeNames[DECLARE] << std::endl;
+    addPattern(DECLARE,    lexemeSymbols[DECLARE],    1);
+    // std::cout << "Adding: " << lexemeNames[IDENTIFIER] << std::endl;
     addPattern(IDENTIFIER, lexemeSymbols[IDENTIFIER], 1);
 }

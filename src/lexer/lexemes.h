@@ -12,6 +12,7 @@ enum Token{
 
     IDENTIFIER, //Variables
     LITERAL,
+    DECLARE,
 
     OPERATOR,
     SEPARATOR,

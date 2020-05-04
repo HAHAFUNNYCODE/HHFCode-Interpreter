@@ -43,6 +43,7 @@ void initializeLexemes(){
 
         {IDENTIFIER,	"IDENTIFIER"},
         {LITERAL,		"LITERAL"},
+        {DECLARE,		"DECLARE"},
 
         {OPERATOR,		"OPERATOR"},
         {SEPARATOR,		"SEPARATOR"},
@@ -54,9 +55,10 @@ void initializeLexemes(){
     lexemeSymbols = std::unordered_map<Token, std::string, TokenHash>({
         {IDENTIFIER,	"^(\\w+)"},
         {LITERAL,		"^((?:\\d*\\.\\d+|\\d+\\.?\\d*)|\".*?\")"},
+		{DECLARE,		"^(var)\\b"},
 
-        {OPERATOR,		"^(\\+|-|\\*|/|%|=|==|<|>|<=|>=|!=|\\|\\||&&)"},
-        {SEPARATOR,		"^(\\(|\\)|\\[|\\]|\\{|\\}|;|:|,)"},
+        {OPERATOR,		"^(\\+|-|\\*|/|%|==|=|<|>|<=|>=|!=|\\|\\||&&)"},
+        {SEPARATOR,		"^(\\(|\\)|\\[|\\]|\\{|\\}|;|:|,|\t)"},
         {KEYWORD,		""},
 
         {COMMENT,		"^(?:\\/\\/([^\n]*)|\\/\\*((?:.|\\s)*?)\\*\\/)"},

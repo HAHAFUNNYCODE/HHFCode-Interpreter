@@ -16,14 +16,18 @@ int main(int argc, char* argv[]){
         inputFile.seekg(0,std::ios::beg);
         inputFile.read(&inputStr[0], inputStr.size());
         inputFile.close();
-        std::cout << "HAVE FILE!" << std::endl;
-        std::cout << inputStr << std::endl;
     }
+    auto start = std::chrono::high_resolution_clock::now();
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration <double, std::milli> time = end - start;
+
     LexemeStream stream = lex.tokenize(inputStr);
     while (!stream.isDone())
     {
         std::cout << stream.next().getString() << std::endl;
     }
+
+    std::cout << time.count() << "ms" << std::endl;
     
     return 0;
 }
