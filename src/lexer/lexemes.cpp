@@ -1,10 +1,7 @@
 #include "lexemes.h"
 
 std::unordered_map<Token, std::string, TokenHash> lexemeNames;
-std::unordered_map<Token, std::string, TokenHash> lexemeSymbols;
-
-const int NUMKW = 5;
-std::array<std::string, NUMKW> keywords;
+std::unordered_map<Token, std::vector<std::string>, TokenHash> knownSymbols;
 
 std::string Lexeme::getString(){
     return lexemeNames[type] + '(' + value + ",ln" + std::to_string(line) + ')';
@@ -28,13 +25,6 @@ bool Lexeme::operator!=(const Lexeme& other){
 }
 
 void initializeLexemes(){
-    keywords = {
-        "if",
-        "elseif",
-        "else",
-        "for",
-        "while"
-    }; 
 
     lexemeNames = std::unordered_map<Token, std::string, TokenHash>({
         {UNKNOWN,		"UNKNOWN"},
@@ -52,26 +42,10 @@ void initializeLexemes(){
         {COMMENT,		"COMMENT"},
     });
 
-    lexemeSymbols = std::unordered_map<Token, std::string, TokenHash>({
-        {IDENTIFIER,	"^(\\w+)"},
-        {LITERAL,		"^((?:\\d*\\.\\d+|\\d+\\.?\\d*)|\".*?\")"},
-		{DECLARE,		"^(var)\\b"},
-
-        {OPERATOR,		"^(\\+|-|\\*|/|%|==|=|<|>|<=|>=|!=|\\|\\||&&)"},
-        {SEPARATOR,		"^(\\(|\\)|\\[|\\]|\\{|\\}|;|:|,|\t)"},
-        {KEYWORD,		""},
-
-        {COMMENT,		"^(?:\\/\\/([^\n]*)|\\/\\*((?:.|\\s)*?)\\*\\/)"},
+    knownSymbols = std::unordered_map<Token, std::vector<std::string>, TokenHash> ({
+		{DECLARE,		{"var"}},
+        {OPERATOR,		{"+","-","*","/","%","=","==","<",">","<=",">=","!="}},
+        {SEPARATOR,		{";",":","(",")","[","]","{","}"}},
+        {KEYWORD,		{"if","else","elseif","for","while"}},
     });
-}
-
-void loadKeywords(){
-    std::string regex = "^(";
-    for(int i = 0; i < NUMKW; i++){
-        regex += keywords[i];
-        if (i < NUMKW-1) 
-            regex += '|';
-    }
-    regex += ")\\b"; 
-    lexemeSymbols[KEYWORD] = regex;
 }

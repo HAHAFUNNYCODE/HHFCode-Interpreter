@@ -3,41 +3,76 @@
 
 #include <string>
 #include <vector>
-#include <regex>
-#include "lexemestream.h"
+#include <memory>
+#include <unordered_set>
+#include <unordered_map>
+
+class LexemeStream;
 
 class Lexer{
     //Member Variables
-    public:
-        struct LexerPattern{
-            Token type;
-            std::regex pattern;
-            int groups;
-
-            inline LexerPattern(LexerPattern const &copy): type(copy.type), pattern(copy.pattern), groups(copy.groups){}
-            inline LexerPattern(Token t, std::string p, int g): type(t), pattern(std::regex(p)), groups(g){}
-            inline LexerPattern(std::pair<Token, std::string> p): type(p.first), pattern(std::regex(p.second)), groups(1){}
-        };
     private:
         bool initialized;
-        std::vector<LexerPattern> patterns;
 
     //Member functions
     public:
         void initialize();
         LexemeStream tokenize(std::string& input);
-  
-        void addPattern(LexerPattern pat);
-        void addPattern(Token t, std::string pat, int g);
+
         void loadPatterns();
 
 };
 
+class Trie{
+    private:
+    char value;
+    std::unordered_set<char> charset;
+    std::unordered_map<char, std::shared_ptr<Trie> > refs;
+    // std::weak_ptr<Trie> backRef;
+    bool isEnd;
+    
+    public:
+    Trie(){}
+    
+    void addPattern(std::string);
+    bool patternExists(std::string);
+    std::shared_ptr<Trie> getRef(char c);
+    inline bool isEnding() {return isEnd;}
+    
+    void print();
+
+    private:
+    void addPattern(std::string, int);
+    void print(std::string);
+};
+
+#ifndef TOKEN_E
+#define TOKEN_E
+enum Token{
+    UNKNOWN,
+    INVALID,
+    FILEEND,
+
+    IDENTIFIER, //Variables
+    LITERAL,
+    DECLARE,
+
+    OPERATOR,
+    SEPARATOR,
+    KEYWORD,
+
+    COMMENT
+};
+
+#endif //TOKEN_E
+
+class TokenHash;
+
 //Externals
 extern std::unordered_map<Token, std::string, TokenHash> lexemeNames;
-extern std::unordered_map<Token, std::string, TokenHash> lexemeSymbols;
 
 const int NUMKW = 5;
 extern std::array<std::string, NUMKW> keywords;
+extern std::unordered_map<Token, std::vector<std::string>, TokenHash> knownSymbols;
 
 #endif //LEXER_H

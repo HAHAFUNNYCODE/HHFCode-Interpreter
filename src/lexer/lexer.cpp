@@ -1,74 +1,80 @@
-#include <regex>
+#include <string>
 #include <iostream>
 
+#include "lexemes.h"
+#include "lexemestream.h"
 #include "lexer.h"
+
 // #include <iostream>
 
 void Lexer::initialize(){
     initializeLexemes();
-    loadKeywords();
     loadPatterns();
     initialized = true;
 }
 
 LexemeStream Lexer::tokenize(std::string &input){
     LexemeStream lexstream;
-    std::smatch match;
-
-    while (input.size()){
-        switch (input[0])
-        {
-        case ' ':
-        case '\n':
-            input = input.substr(1,input.size()-1);
-            break;
-        default:
-            // std::cout << "CUR: " << input << std::endl;
-            for(LexerPattern p : patterns){
-                bool found = false;
-                // std::cout << "RUNNING: " << lexemeNames[p.type] << std::endl;
-                if(std::regex_search(input, match, p.pattern)){
-                    for(int i = 1; i <= p.groups; i++){
-                        if(match.str(i) != ""){
-                            lexstream.pushLexeme(
-                                Lexeme(p.type, match.str(i), -1, -1)
-                            );
-                            found = true;
-                            input = match.suffix().str();
-                        }
-                    }
-                    if(found) break;
-                }
-            }
-        }
-    }
 
     lexstream.finish();
     return lexstream;
 }
 
-void Lexer::addPattern(Lexer::LexerPattern pat){
-    patterns.push_back(pat);
-}
-
-void Lexer::addPattern(Token t, std::string p, int g){
-    Lexer::LexerPattern pat(t,p,g);
-    addPattern(pat);
-}
 
 void Lexer::loadPatterns(){
-    // std::cout << "Adding: " << lexemeNames[COMMENT] << std::endl;
-    addPattern(COMMENT,    lexemeSymbols[COMMENT],    2);
-    // std::cout << "Adding: " << lexemeNames[KEYWORD] << std::endl;
-    addPattern(KEYWORD,    lexemeSymbols[KEYWORD],    1);
-    // std::cout << "Adding: " << lexemeNames[SEPARATOR] << std::endl;
-    addPattern(SEPARATOR,  lexemeSymbols[SEPARATOR],  1);
-    // std::cout << "Adding: " << lexemeNames[OPERATOR] << std::endl;
-    addPattern(OPERATOR,   lexemeSymbols[OPERATOR],   1);
-    // std::cout << "Adding: " << lexemeNames[LITERAL] << std::endl;
-    addPattern(LITERAL,    lexemeSymbols[LITERAL],    1);
-    // std::cout << "Adding: " << lexemeNames[DECLARE] << std::endl;
-    addPattern(DECLARE,    lexemeSymbols[DECLARE],    1);
-    // std::cout << "Adding: " << lexemeNames[IDENTIFIER] << std::endl;
-    addPattern(IDENTIFIER, lexemeSymbols[IDENTIFIER], 1);
+    for(auto symbols : knownSymbols){
+        Trie t;
+        for(std::string symbol : symbols.second){
+            t.addPattern(symbol);
+        }
+        t.print();
+        std::cout << "//==================//" << std::endl;
+    }
+}
+
+void Trie::addPattern(std::string p){
+    addPattern(p,0);
+}
+
+void Trie::addPattern(std::string p, int index){
+    if(index >= p.size()){
+        isEnd = true;
+        return;
+    }
+    char c = p[index];
+
+    if(charset.find(c) == charset.end()){
+        charset.insert(c);
+        refs[c] = std::make_shared<Trie>();
+    }
+    refs[c]->addPattern(p, index+1);
+}
+
+bool Trie::patternExists(std::string pat){
+    return false;
+}
+
+std::shared_ptr<Trie> Trie::getRef(char c){
+    return std::shared_ptr<Trie>(nullptr);
+}
+
+void Trie::print(){
+    for(char c : charset){
+        std::string s(1, c);
+        refs[c]->print(s);
+    }
+}
+
+void Trie::print(std::string s){
+    if(charset.empty()){
+        std::cout << s << std::endl;
+        return;
+    }
+
+    if (isEnd)
+        std::cout << s << std::endl;
+
+    for(char c : charset){
+        refs[c]->print(s+c);
+    }
 }

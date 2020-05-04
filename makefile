@@ -13,7 +13,7 @@ run: build
 test: build
 	./$(BINDIR)/$(BIN) testfile.txt
 
-$(OBJDIR)/main.o: src/main.h src/main.cpp $(OBJDIR)/lexer.o
+$(OBJDIR)/main.o: src/main.h src/main.cpp src/lexer/lexer.h
 	$(CC) -c src/main.cpp -o $(OBJDIR)/main.o -std=$(STD)
 
 $(OBJDIR)/interpreter.o: src/interpreter.h src/interpreter.cpp
@@ -22,7 +22,7 @@ $(OBJDIR)/interpreter.o: src/interpreter.h src/interpreter.cpp
 $(OBJDIR)/parser.o: src/parser.h src/parser.cpp
 	$(CC) -c src/parser.cpp -o $(OBJDIR)/parser.o -std=$(STD)
 
-$(OBJDIR)/lexer.o: $(OBJDIR)/lexemes.o src/lexer/lexer.h src/lexer/lexer.cpp  src/lexer/lexemestream.h
+$(OBJDIR)/lexer.o: src/lexer/lexemes.h src/lexer/lexer.h src/lexer/lexer.cpp  src/lexer/lexemestream.h
 	$(CC) -c src/lexer/lexer.cpp -o $(OBJDIR)/lexer.o -std=$(STD)
 	
 $(OBJDIR)/lexemes.o: src/lexer/lexemes.h src/lexer/lexemes.cpp

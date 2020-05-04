@@ -18,10 +18,11 @@ int main(int argc, char* argv[]){
         inputFile.close();
     }
     auto start = std::chrono::high_resolution_clock::now();
-    auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration <double, std::milli> time = end - start;
 
     LexemeStream stream = lex.tokenize(inputStr);
+
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration <double, std::milli> time = end - start;
     while (!stream.isDone())
     {
         std::cout << stream.next().getString() << std::endl;

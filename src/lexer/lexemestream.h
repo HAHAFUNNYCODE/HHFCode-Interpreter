@@ -4,10 +4,7 @@
 #include <queue>
 #include <exception>
 
-#include "lexemes.h"
-
-class ClosedLexStreamException;
-class FinishedLexStreamException;
+class Lexeme;
 
 class ClosedLexStreamException : std::exception {
     const char* what () const throw() {
@@ -45,7 +42,7 @@ class LexemeStream {
     }
 
     Lexeme next(){ //Returns the next lexeme in the stream.
-        if (done)
+        if (done || stream.empty())
             throw FinishedLexStreamException();
 
         Lexeme nextLex = stream.front();

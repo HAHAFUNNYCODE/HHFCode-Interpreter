@@ -3,8 +3,10 @@
 
 #include <unordered_map>
 #include <string>
-#include <array>
+#include <vector>
 
+#ifndef TOKEN_E
+#define TOKEN_E
 enum Token{
     UNKNOWN,
     INVALID,
@@ -21,6 +23,8 @@ enum Token{
     COMMENT
 };
 
+#endif //TOKEN_E
+
 
 class TokenHash {
 public: 
@@ -30,7 +34,6 @@ public:
         return inthash(static_cast<int>(t));
     } 
 };
-
 
 class Lexeme{
     private:
@@ -66,11 +69,10 @@ class Lexeme{
         
         default:
             return 1;
+        }
     }
-}
 };
 
-void loadKeywords();
 void initializeLexemes();
 
 #endif //LEXEMES_H
