@@ -1,0 +1,4 @@
+if elseif else for while;
+( ) { } [ ];
+"Hello World",4.20,69:;
++ - * / % == < > <= >= != || &&;

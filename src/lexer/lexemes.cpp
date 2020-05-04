@@ -1,5 +1,15 @@
 #include "lexemes.h"
 
+std::unordered_map<Token, std::string, TokenHash> lexemeNames;
+std::unordered_map<Token, std::string, TokenHash> lexemeSymbols;
+
+const int NUMKW = 5;
+std::array<std::string, NUMKW> keywords;
+
+std::string Lexeme::getString(){
+    return lexemeNames[type] + '(' + value + ",ln" + std::to_string(line) + ')';
+}
+
 bool Lexeme::equals(const Lexeme& other){
         bool sameType = false; //Same type is assumed false
         bool sameVal = true; //Only care to check the value for certain tokens like Identifiers
@@ -19,8 +29,8 @@ bool Lexeme::operator!=(const Lexeme& other){
 
 void initializeLexemes(){
     keywords = {
-        "elseif",
         "if",
+        "elseif",
         "else",
         "for",
         "while"
@@ -42,18 +52,14 @@ void initializeLexemes(){
     });
 
     lexemeSymbols = std::unordered_map<Token, std::string, TokenHash>({
-        {UNKNOWN,		""},
-        {INVALID,		""},
-        {FILEEND,       "^[\\s]*(EOF)[\\s*]"},
+        {IDENTIFIER,	"^(\\w+)"},
+        {LITERAL,		"^((?:\\d*\\.\\d+|\\d+\\.?\\d*)|\".*?\")"},
 
-        {IDENTIFIER,	"^[\\s]*([\\w])"},
-        {LITERAL,		"LITERAL"},
-
-        {OPERATOR,		"^[\\s]*(+|-|*|/|%))"},
-        {SEPARATOR,		"^[\\s]*(\\(|\\)|\\[|\\]|\\{|\\}|;)"},
+        {OPERATOR,		"^(\\+|-|\\*|/|%|=|==|<|>|<=|>=|!=|\\|\\||&&)"},
+        {SEPARATOR,		"^(\\(|\\)|\\[|\\]|\\{|\\}|;|:|,)"},
         {KEYWORD,		""},
 
-        {COMMENT,		"^[\\s]*(?:\\/\\/([^\n]*)|\\/\\*((?:.|\\s)*?)\\*\\/)"},
+        {COMMENT,		"^(?:\\/\\/([^\n]*)|\\/\\*((?:.|\\s)*?)\\*\\/)"},
     });
 }
 
@@ -64,6 +70,6 @@ void loadKeywords(){
         if (i < NUMKW-1) 
             regex += '|';
     }
-    regex += ')';
+    regex += ")\\b"; 
     lexemeSymbols[KEYWORD] = regex;
 }

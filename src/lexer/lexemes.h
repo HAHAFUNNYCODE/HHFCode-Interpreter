@@ -20,12 +20,12 @@ enum Token{
     COMMENT
 };
 
-extern std::hash<int> inthash;
 
 class TokenHash {
 public: 
-    size_t operator()(const Token& t) const
+    inline size_t operator()(const Token& t) const
     {
+        std::hash<int> inthash;
         return inthash(static_cast<int>(t));
     } 
 };
@@ -50,6 +50,8 @@ class Lexeme{
     inline int         getColumn()     {return column;}
     inline int         getLineNumber() {return line;}
 
+    std::string getString();
+
     bool equals(const Lexeme& other);
     bool operator==(const Lexeme& other);
     bool operator!=(const Lexeme& other);
@@ -66,12 +68,6 @@ class Lexeme{
     }
 }
 };
-
-extern std::unordered_map<Token, std::string, TokenHash> lexemeNames;
-extern std::unordered_map<Token, std::string, TokenHash> lexemeSymbols;
-
-const int NUMKW = 5;
-extern std::array<std::string, NUMKW> keywords;
 
 void loadKeywords();
 void initializeLexemes();

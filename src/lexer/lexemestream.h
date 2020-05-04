@@ -54,6 +54,14 @@ class LexemeStream {
         stream.pop();
         return nextLex;
     }
+
+    bool isOpen(){
+        return open;
+    }
+
+    bool isDone(){
+        return done;
+    }
 };
 
 #endif //LEXEMESTREAM_H
