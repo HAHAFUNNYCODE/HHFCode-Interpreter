@@ -13,6 +13,14 @@ class Lexer{
     private:;
     public:
         LexemeStream tokenize(std::string& input);
+        
 };
+
+//Externals
+extern std::unordered_map<Token, std::string, TokenHash> lexemeNames;
+extern std::unordered_map<Token, std::string, TokenHash> lexemeSymbols;
+
+const int NUMKW = 5;
+extern std::array<std::string, NUMKW> keywords;
 
 #endif //LEXER_H

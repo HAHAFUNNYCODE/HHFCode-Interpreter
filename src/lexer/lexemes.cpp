@@ -1,5 +1,11 @@
 #include "lexemes.h"
 
+std::unordered_map<Token, std::string, TokenHash> lexemeNames;
+std::unordered_map<Token, std::string, TokenHash> lexemeSymbols;
+
+const int NUMKW = 5;
+std::array<std::string, NUMKW> keywords;
+
 bool Lexeme::equals(const Lexeme& other){
         bool sameType = false; //Same type is assumed false
         bool sameVal = true; //Only care to check the value for certain tokens like Identifiers
