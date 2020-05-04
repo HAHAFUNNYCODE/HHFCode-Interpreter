@@ -26,9 +26,11 @@ class Lexer{
     public:
         void initialize();
         LexemeStream tokenize(std::string& input);
+  
         void addPattern(LexerPattern pat);
         void addPattern(Token t, std::string pat, int g);
         void loadPatterns();
+
 };
 
 //Externals
