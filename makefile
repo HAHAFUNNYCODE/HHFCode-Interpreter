@@ -40,9 +40,15 @@ force:
 	$(CC) -c src/misc/timer.cpp -o $(OBJDIR)/timer.o -std=$(STD)
 	$(CC) -o $(BINDIR)/$(BIN) $(OBJDIR)/*.o -std=$(STD)
 
-clean:
+clean: clean-obj clean-bin clean-dir
+
+clean-obj:
 	rm $(OBJDIR)/*
+
+clean-bin:
 	rm $(BINDIR)/$(BIN)
+
+clean-dir:
 	rmdir $(OBJDIR) $(BINDIR)
 
 checkdir:
