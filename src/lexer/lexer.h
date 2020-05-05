@@ -27,6 +27,7 @@ enum Token{
     KEYWORD,
 
     COMMENT
+    COMMENTEND
 };
 
 #endif //TOKEN_E
@@ -47,6 +48,7 @@ class Lexer{
     private:
         Lexeme getFromPattern(std::string& input, size_t* index, Token pat, bool needSep=true);
         Lexeme getIdentifier(std::string& input, size_t* index);
+        Lexeme getComment(std::string& input, size_t* index);
 
         Lexeme getLiteral(std::string& input, size_t* index);
         Lexeme getString(std::string& input, size_t* index);
@@ -84,7 +86,7 @@ extern std::unordered_map<Token, std::vector<std::string>, TokenHash> knownSymbo
 extern std::unordered_map<Token, std::unordered_set<char>, TokenHash> startChars;
 extern std::unordered_set<char> whitespace, identifierSet;
 extern char delimiter;
-
+extern std::string lineCommentStart, blockCommentStart, blockCommentEnd;
 
 class InvalidTokenException : std::exception{
     private:

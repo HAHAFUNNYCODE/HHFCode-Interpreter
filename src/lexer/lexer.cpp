@@ -26,6 +26,18 @@ LexemeStream Lexer::tokenize(std::string &input){
             continue;
         }
 
+        //Check for comments
+        if(startChars[COMMENT].find(curC) != startChars[COMMENT].end()){
+            Lexeme lex = getComment(input, &index);
+            Token type = lex.getType();
+            if (type == INVALID)
+                throw InvalidTokenException();
+            if (type == COMMENT){
+                lexstream.pushLexeme(lex);
+                continue;
+            }
+        }
+
         //Check for keywords
         if(startChars[KEYWORD].find(curC) != startChars[KEYWORD].end()){
             Lexeme lex = getFromPattern(input, &index, KEYWORD);
@@ -158,6 +170,54 @@ std::shared_ptr<Trie> Trie::getRef(char c){
 //         refs[c]->print(s+c);
 //     }
 // }
+
+Lexeme Lexer::getComment(std::string& input, size_t* index){
+    size_t indexfallback = *index;
+    std::shared_ptr<Trie> node = patterns[COMMENT].getRef(input[(*index)++]), prev;
+    std::string value = "";
+    char cur;
+
+    while (node && *index < input.size()){
+        value += node->getValue();
+        prev = node;
+        cur = input[(*index)++];
+        node = node->getRef(cur);
+    }
+
+    std::string comment(1,cur);
+
+    if(value == lineCommentStart){
+        while(*index < input.size()){
+            char cur = input[(*index)++];
+            if(cur == '\n'){
+                (*index)++;
+                break;
+            }
+            comment += cur;
+        }
+        return Lexeme(COMMENT, comment, -1,-1); 
+    } else if(value == blockCommentStart){
+        while(*index < input.size()){
+            char cur = input[(*index)++];
+            comment += cur;
+            std::shared_ptr<Trie> endNode = patterns[COMMENTEND].getRef(cur);
+            
+            while(*index < input.size() && endNode && !endNode->isEnding()){
+                cur = input[(*index)++];
+                comment += cur;
+                endNode = endNode->getRef(cur);
+            }
+
+            if(endNode && endNode->isEnding()){
+                comment.resize(comment.size() - blockCommentEnd.size());
+                return Lexeme(COMMENT, comment, -1, -1);
+            }
+        }
+        return Lexeme(INVALID);
+    }
+
+    return Lexeme();
+}
 
 Lexeme Lexer::getFromPattern(std::string& input, size_t* index, Token pat, bool needSep){
     size_t indexfallback = *index;

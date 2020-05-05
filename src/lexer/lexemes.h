@@ -19,7 +19,8 @@ enum Token{
     SEPARATOR,
     KEYWORD,
 
-    COMMENT
+    COMMENT,
+    COMMENTEND
 };
 
 #endif //TOKEN_E

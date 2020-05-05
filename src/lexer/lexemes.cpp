@@ -8,6 +8,7 @@ std::unordered_map<Token, std::vector<std::string>, TokenHash> knownSymbols;
 std::unordered_map<Token, std::unordered_set<char>, TokenHash> startChars;
 std::unordered_set<char> whitespace, identifierSet;
 char delimiter;
+std::string lineCommentStart, blockCommentStart, blockCommentEnd;
 
 std::string Lexeme::getString(){
     return lexemeNames[type] + '(' + value + ",ln" + std::to_string(line) + ')';
@@ -52,14 +53,18 @@ void initializeLexemes(){
         {OPERATOR,		{"+","-","*","/","%","=","==","<",">","<=",">=","!=", "++", "--", "+=", "-=", "*=", "/=", "%="}},
         {SEPARATOR,		{";",":","(",")","[","]","{","}"}},
         {KEYWORD,		{"if","else","elseif","for","while","var"}},
-        {LITERAL,		{"true","false"}}
+        {LITERAL,		{"true","false"}},
+        {COMMENT,		{"//", "/*"}},
+		{COMMENTEND,	{"*/"}}
     });
 
 	startChars = std::unordered_map<Token, std::unordered_set<char>, TokenHash>({
         {OPERATOR,		{'+','-','*','/','%','=','<','>','!'}},
         {SEPARATOR,		{';',':','(',')','[',']','{','}', ','}},
         {KEYWORD,		{'i','e','f','w', 'v'}},
-        {LITERAL,		{'t','f', '0','1','2','3','4','5','6','7','8','9','.','"'}}
+        {LITERAL,		{'t','f', '0','1','2','3','4','5','6','7','8','9','.','"'}},
+		{COMMENT,		{'/'}},
+		{COMMENTEND,	{'*'}}
 	});
 
 	whitespace = std::unordered_set<char>(
@@ -77,4 +82,7 @@ void initializeLexemes(){
 	);
 
     delimiter = '\\';
+	lineCommentStart = "//";
+	blockCommentStart = "/*";
+	blockCommentEnd = "*/";
 }
