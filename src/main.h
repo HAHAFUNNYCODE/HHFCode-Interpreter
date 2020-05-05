@@ -3,10 +3,6 @@
 
 #include "lexer/lexemes.h"
 #include "lexer/lexemestream.h"
-
-// class TokenHash;
-
-// extern std::unordered_map<Token, std::vector<std::string>, TokenHash> knownSymbols;
-// extern std::unordered_map<Token, std::unordered_set<char>, TokenHash> startChars;
+#include "misc/timer.h"
 
 #endif //MAIN_H

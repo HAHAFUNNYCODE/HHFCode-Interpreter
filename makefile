@@ -4,7 +4,7 @@ BINDIR=bin
 BIN=hhfi
 STD=c++11
 
-build: checkdir $(OBJDIR)/main.o $(OBJDIR)/parser.o $(OBJDIR)/interpreter.o $(OBJDIR)/lexer.o $(OBJDIR)/lexemes.o
+build: checkdir $(OBJDIR)/main.o $(OBJDIR)/parser.o $(OBJDIR)/interpreter.o $(OBJDIR)/lexer.o $(OBJDIR)/lexemes.o $(OBJDIR)/timer.o
 	$(CC) -o $(BINDIR)/$(BIN) $(OBJDIR)/*.o -std=$(STD)
 
 run: build
@@ -28,12 +28,16 @@ $(OBJDIR)/lexer.o: src/lexer/lexemes.h src/lexer/lexer.h src/lexer/lexer.cpp  sr
 $(OBJDIR)/lexemes.o: src/lexer/lexemes.h src/lexer/lexemes.cpp
 	$(CC) -c src/lexer/lexemes.cpp -o $(OBJDIR)/lexemes.o -std=$(STD)
 
+$(OBJDIR)/timer.o: src/misc/timer.h src/misc/timer.cpp
+	$(CC) -c src/misc/timer.cpp -o $(OBJDIR)/timer.o -std=$(STD)
+
 force:
 	$(CC) -c src/main.cpp -o $(OBJDIR)/main.o -std=$(STD)
 	$(CC) -c src/interpreter.cpp -o $(OBJDIR)/interpreter.o -std=$(STD)
 	$(CC) -c src/parser.cpp -o $(OBJDIR)/parser.o -std=$(STD)
 	$(CC) -c src/lexer/lexer.cpp -o $(OBJDIR)/lexer.o -std=$(STD)
 	$(CC) -c src/lexer/lexemes.cpp -o $(OBJDIR)/lexemes.o -std=$(STD)
+	$(CC) -c src/misc/timer.cpp -o $(OBJDIR)/timer.o -std=$(STD)
 	$(CC) -o $(BINDIR)/$(BIN) $(OBJDIR)/*.o -std=$(STD)
 
 clean:
