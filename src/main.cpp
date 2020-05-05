@@ -3,6 +3,7 @@
 
 #include "main.h"
 #include "lexer/lexer.h"
+#include "misc/testing.h"
 
 std::string openFile(std::string);
 
@@ -22,21 +23,30 @@ int main(int argc, char* argv[]){ //Takes in command line arguments for the file
     Timer timer; //For testing really, starts a timer
     timer.setResolution(MILLI);
     timer.start();
-    try{ //Tries to have the data from the file tokenized. If it fails, it will raise
-         // an InvalidTokenException which can be read
-        stream = lex.tokenize(inputStr);
-    }catch(InvalidTokenException e){
-        std::cout << "\e[91mERROR: \e[0m" << e.what() << std::endl;
-        throw e;
+    for(int i = 0; i < 10000; i++){
+        try{ //Tries to have the data from the file tokenized. If it fails, it will raise
+            // an InvalidTokenException which can be read
+            stream = lex.tokenize(inputStr);
+        }catch(InvalidTokenException e){
+            std::cout << "\e[91mERROR: \e[0m" << e.what() << std::endl;
+            throw e;
+        }
+        timer.lap();
     }
     timer.stop();
+
+    std::vector <double> times = timer.getLapTimes();
+    times.pop_back();
+    double min, max, avg;
+    MinMaxAvg(times, &min, &max, &avg);
 
     while (!stream.isDone()) //Continues while the stream still has something inside of it
     {
         std::cout << stream.next().getString() << std::endl;
     }
 
-    std::cout << timer.getDuration() << "ms" << std::endl; //Prints out the time it took
+    // std::cout << timer.getDuration() << "ms" << std::endl; //Prints out the time it took
+    std::cout << "Min: " << min << "ms Max: " << max << "ms Avg: " << avg << "ms" << std::endl;
     
     return 0;
 }

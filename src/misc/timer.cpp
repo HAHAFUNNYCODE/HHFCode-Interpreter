@@ -58,12 +58,16 @@ std::vector<double> Timer::getLapTimes(TimerResolution t){
         {
             case SECONDS:
                  lapDur.push_back((curLap - prevLap).count());
+                 break;
             case MILLI:
                 lapDur.push_back(std::chrono::duration<double, std::milli>(curLap - prevLap).count());
+                break;
             case MICRO:
                 lapDur.push_back(std::chrono::duration<double, std::micro>(curLap - prevLap).count());
+                break;
             case NANO:
                 lapDur.push_back(std::chrono::duration<double, std::nano>(curLap - prevLap).count());
+                break;
         }
     }
 
