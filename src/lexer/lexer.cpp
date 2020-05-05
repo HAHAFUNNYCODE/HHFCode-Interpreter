@@ -185,6 +185,8 @@ std::shared_ptr<Trie> Trie::getRef(char c){
 //     }
 // }
 
+std::string prettifyComment(std::string);
+
 Lexeme Lexer::getComment(std::string& input, size_t* index){
     size_t indexfallback = *index; //In case need to go back to start
     std::shared_ptr<Trie> node = patterns[COMMENT].getRef(input[(*index)++]), prev; //Starts Trie
@@ -225,7 +227,8 @@ Lexeme Lexer::getComment(std::string& input, size_t* index){
 
             if(endNode && endNode->isEnding()){ //If full match, then found the end of the comment
                 comment.resize(comment.size() - blockCommentEnd.size());
-                return Lexeme(COMMENT, comment, -1, -1);
+                size_t nlPos = comment.find('\n');
+                return Lexeme(COMMENT, prettifyComment(comment), -1, -1);
             }
         }
         //Comment blocks extending past EOF are invalid
@@ -381,4 +384,15 @@ Lexeme Lexer::getIdentifier(std::string& input, size_t* index){
 
     *index = indexfallback;
     return Lexeme(UNKNOWN, "", -1, -1);
+}
+
+std::string prettifyComment(std::string str){
+    size_t nlPos;
+    while((nlPos = str.find('\n')) != std::string::npos){
+        str.replace(nlPos, size_t(1), " ");
+    }
+    while((nlPos = str.find("  ")) != std::string::npos){
+        str.replace(nlPos, size_t(2), " ");
+    }
+    return str;
 }
