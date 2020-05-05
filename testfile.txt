@@ -1,4 +1,22 @@
-if elseif else for while;
-( ) { } [ ]; for hello in while if == != 10;
-"Hello World",4.20,69:; var x = 4;
-+ - * / % == < > <= >= != || &&;
+{
+    var x = 56;
+    for(var i = 0; i < 10; i++){
+        if (i*i <= x){
+            print(i,"^2 < ", x);
+        } else{
+            print("NOPE!")
+        }
+    }
+
+    var b = true;
+    if(x++==v){
+        print(x++);
+    } else{
+        while(x != b){
+            x++;
+        }
+    }
+
+    var b2 = false;
+    var b3 = true;
+}

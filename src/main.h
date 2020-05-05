@@ -4,6 +4,9 @@
 #include "lexer/lexemes.h"
 #include "lexer/lexemestream.h"
 
-extern std::unordered_map<Token, std::vector<std::string>, TokenHash> knownSymbols;
+// class TokenHash;
+
+// extern std::unordered_map<Token, std::vector<std::string>, TokenHash> knownSymbols;
+// extern std::unordered_map<Token, std::unordered_set<char>, TokenHash> startChars;
 
 #endif //MAIN_H

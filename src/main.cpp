@@ -19,8 +19,14 @@ int main(int argc, char* argv[]){
     }
     auto start = std::chrono::high_resolution_clock::now();
 
-    LexemeStream stream = lex.tokenize(inputStr);
+    LexemeStream stream;
 
+    try{
+        stream = lex.tokenize(inputStr);
+    }catch(InvalidTokenException e){
+        std::cout << "\e[91mERROR: \e[0m" << e.what() << std::endl;
+        throw e;
+    }
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration <double, std::milli> time = end - start;
     while (!stream.isDone())

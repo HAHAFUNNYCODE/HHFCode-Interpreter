@@ -1,7 +1,6 @@
 #ifndef LEXEMES_H
 #define LEXEMES_H
 
-#include <unordered_map>
 #include <string>
 #include <vector>
 
@@ -44,7 +43,10 @@ class Lexeme{
     public:
 
     inline Lexeme():
-        type(INVALID), value(""), column(-1), line(-1){}
+        type(UNKNOWN), value(""), column(-1), line(-1){}
+
+    inline Lexeme(Token type): 
+        type(type), value(""), column(-1), line(-1){}
 
     inline Lexeme(Token type, std::string value, int column, int line):
         type(type), value(value), column(column), line(line){}
