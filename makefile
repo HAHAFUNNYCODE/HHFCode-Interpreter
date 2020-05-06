@@ -1,56 +1,30 @@
 CC=g++
 OBJDIR=build
+OBJS := $(addprefix $(OBJDIR)/,main.o lexer.o lexemes.o timer.o)
 BINDIR=bin
 BIN=hhfi
 STD=c++11
 
-build: checkdir $(OBJDIR)/main.o $(OBJDIR)/parser.o $(OBJDIR)/interpreter.o $(OBJDIR)/lexer.o $(OBJDIR)/lexemes.o $(OBJDIR)/timer.o
-	$(CC) -o $(BINDIR)/$(BIN) $(OBJDIR)/*.o -std=$(STD)
+vpath %.cpp src src/lexer src/misc
+vpath %.h src src/lexer src/misc
 
-run: build
+$(BINDIR)/$(BIN): $(OBJDIR) $(BINDIR) $(OBJS)
+	$(CC) $(OBJDIR)/*.o -o $@
+
+run: $(BINDIR)/$(BIN)
 	./$(BINDIR)/$(BIN)
 
-test: build
+test: $(BINDIR)/$(BIN)
 	./$(BINDIR)/$(BIN) testfile.txt
 
-$(OBJDIR)/main.o: src/main.h src/main.cpp src/lexer/lexer.h
-	$(CC) -c src/main.cpp -o $(OBJDIR)/main.o -std=$(STD)
+$(OBJDIR)/%.o: %.cpp %.h
+	$(CC) -c $< -o $@ -std=$(STD)
 
-$(OBJDIR)/interpreter.o: src/interpreter.h src/interpreter.cpp
-	$(CC) -c src/interpreter.cpp -o $(OBJDIR)/interpreter.o -std=$(STD)
+clean: $(OBJDIR) $(BINDIR)
+	rm -r $(OBJDIR) $(BINDIR)
 
-$(OBJDIR)/parser.o: src/parser.h src/parser.cpp
-	$(CC) -c src/parser.cpp -o $(OBJDIR)/parser.o -std=$(STD)
+$(OBJDIR):
+	mkdir $(OBJDIR)
 
-$(OBJDIR)/lexer.o: src/lexer/lexemes.h src/lexer/lexer.h src/lexer/lexer.cpp  src/lexer/lexemestream.h
-	$(CC) -c src/lexer/lexer.cpp -o $(OBJDIR)/lexer.o -std=$(STD)
-	
-$(OBJDIR)/lexemes.o: src/lexer/lexemes.h src/lexer/lexemes.cpp
-	$(CC) -c src/lexer/lexemes.cpp -o $(OBJDIR)/lexemes.o -std=$(STD)
-
-$(OBJDIR)/timer.o: src/misc/timer.h src/misc/timer.cpp
-	$(CC) -c src/misc/timer.cpp -o $(OBJDIR)/timer.o -std=$(STD)
-
-force:
-	$(CC) -c src/main.cpp -o $(OBJDIR)/main.o -std=$(STD)
-	$(CC) -c src/interpreter.cpp -o $(OBJDIR)/interpreter.o -std=$(STD)
-	$(CC) -c src/parser.cpp -o $(OBJDIR)/parser.o -std=$(STD)
-	$(CC) -c src/lexer/lexer.cpp -o $(OBJDIR)/lexer.o -std=$(STD)
-	$(CC) -c src/lexer/lexemes.cpp -o $(OBJDIR)/lexemes.o -std=$(STD)
-	$(CC) -c src/misc/timer.cpp -o $(OBJDIR)/timer.o -std=$(STD)
-	$(CC) -o $(BINDIR)/$(BIN) $(OBJDIR)/*.o -std=$(STD)
-
-clean: clean-obj clean-bin clean-dir
-
-clean-obj:
-	rm $(OBJDIR)/*
-
-clean-bin:
-	rm $(BINDIR)/$(BIN)
-
-clean-dir:
-	rmdir $(OBJDIR) $(BINDIR)
-
-checkdir:
-	if ! [ -d "$(OBJDIR)" ]; then mkdir $(OBJDIR); fi
-	if ! [ -d "$(BINDIR)" ]; then mkdir $(BINDIR); fi
+$(BINDIR):
+	mkdir $(BINDIR)
