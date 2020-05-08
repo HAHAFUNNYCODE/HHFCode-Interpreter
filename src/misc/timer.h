@@ -17,8 +17,8 @@ enum TimerResolution{ //Orders of magnitude for time
 class Timer{
     //Member variables
     private:
-    std::chrono::steady_clock::time_point startpoint, end; //The start of the timer, end of timer;
-    std::vector< std::chrono::steady_clock::time_point> laps; //Times when the timer was lapped
+    std::chrono::high_resolution_clock::time_point startpoint, end; //The start of the timer, end of timer;
+    std::vector< std::chrono::high_resolution_clock::time_point> laps; //Times when the timer was lapped
     bool running;
     TimerResolution resolution = MILLI;
 
