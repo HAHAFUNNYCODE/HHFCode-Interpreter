@@ -10,6 +10,7 @@
 //Forward declarations
 class LexemeStream;
 class Trie;
+class IndexTracker;
 class TokenHash;
 class LexerUninitializedException;
 
@@ -49,13 +50,13 @@ class Lexer{
 
     private:
         //Lexeme getters for the Lexer to use in tokenize()
-        Lexeme getFromPattern(std::string& input, size_t* index, Token pat, bool needSep=true);
-        Lexeme getIdentifier(std::string& input, size_t* index);
-        Lexeme getComment(std::string& input, size_t* index);
+        Lexeme getFromPattern(std::string& input, IndexTracker* index, Token pat, bool needSep=true);
+        Lexeme getIdentifier(std::string& input, IndexTracker* index);
+        Lexeme getComment(std::string& input, IndexTracker* index);
 
-        Lexeme getLiteral(std::string& input, size_t* index);
-        Lexeme getString(std::string& input, size_t* index);
-        Lexeme getNumber(std::string& input, size_t* index);
+        Lexeme getLiteral(std::string& input, IndexTracker* index);
+        Lexeme getString(std::string& input, IndexTracker* index);
+        Lexeme getNumber(std::string& input, IndexTracker* index);
 };
 
 class Trie{ //A node for a Trie data structure
@@ -80,6 +81,41 @@ class Trie{ //A node for a Trie data structure
     private:
     void addPattern(std::string, int); //Recursive add pattern
     void print(std::string);
+};
+
+struct IndexTracker{
+    size_t index, line, col;
+
+    IndexTracker():index(0),line(1),col(1){}
+
+    IndexTracker(size_t index, size_t line, size_t col): 
+        index(index), line(line), col(col){}
+
+    IndexTracker(const IndexTracker& other):
+        index(other.index), line(other.line), col(other.col){}
+
+    void addLine(size_t n){
+        line += n;
+        col = 1;
+    }
+
+    void addCol(size_t n){
+        col += n;
+    }
+
+    size_t operator++(int n){
+        index+=1;
+        return index-1;
+    }
+
+    size_t operator--(int n){
+        index-=1;
+        return index+1;
+    }
+
+    inline operator size_t(){
+        return index;
+    }
 };
 
 //Externals see lexemes.h

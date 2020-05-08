@@ -5,11 +5,24 @@ BINDIR=bin
 BIN=hhfi
 STD=c++11
 
+main.o_DEPENDENCIES=main.cpp main.h lexer.h
+lexer.o_DEPENDENCIES=lexer.cpp lexer.h lexemes.h lexemestream.h
+lexemes.o_DEPENDENCIES=lexemes.cpp lexemes.h
+timer.o_DEPENDENCIES=timer.cpp timer.h
+
+ifeq ($(BUILDTYPE), debug)
+CFLAGS += -O0 -g
+else 
+ifeq ($(BUILDTYPE), release)
+CFLAGS += -O3 -DNDEBUG
+endif
+endif
+
 vpath %.cpp src src/lexer src/misc
 vpath %.h src src/lexer src/misc
 
 $(BINDIR)/$(BIN): $(OBJDIR) $(BINDIR) $(OBJS)
-	$(CC) $(OBJDIR)/*.o -o $@
+	$(CC) $(OBJDIR)/*.o $(CFLAGS) -o $@
 
 run: $(BINDIR)/$(BIN)
 	./$(BINDIR)/$(BIN)
@@ -17,25 +30,31 @@ run: $(BINDIR)/$(BIN)
 test: $(BINDIR)/$(BIN)
 	./$(BINDIR)/$(BIN) testfile.txt
 
-force: clean $(OBJS)
+force: clean $(OBJS) $(BINDIR)/$(BIN)
 
-$(OBJDIR)/main.o: src/main.h src/main.cpp src/lexer/lexer.h
-	$(CC) -c src/main.cpp -o $(OBJDIR)/main.o -std=$(STD)
+release:
+	make force "BUILDTYPE=release"
 
-$(OBJDIR)/interpreter.o: src/interpreter.h src/interpreter.cpp
-	$(CC) -c src/interpreter.cpp -o $(OBJDIR)/interpreter.o -std=$(STD)
+debug:
+	make force "BUILDTYPE=debug"
 
-$(OBJDIR)/parser.o: src/parser.h src/parser.cpp
-	$(CC) -c src/parser.cpp -o $(OBJDIR)/parser.o -std=$(STD)
+$(OBJDIR)/main.o: main.cpp main.h lexer.h
+	$(CC) -c $< -o $@ -std=$(STD) $(CFLAGS)
 
-$(OBJDIR)/lexer.o: src/lexer/lexemes.h src/lexer/lexer.h src/lexer/lexer.cpp  src/lexer/lexemestream.h
-	$(CC) -c src/lexer/lexer.cpp -o $(OBJDIR)/lexer.o -std=$(STD)
+$(OBJDIR)/interpreter.o: interpreter.cpp interpreter.h
+	$(CC) -c $< -o $@ -std=$(STD) $(CFLAGS)
+
+$(OBJDIR)/parser.o: parser.cpp parser.h 
+	$(CC) -c $< -o $@ -std=$(STD) $(CFLAGS)
+
+$(OBJDIR)/lexer.o: lexer.cpp lexer.h lexemes.h lexemestream.h
+	$(CC) -c $< -o $@ -std=$(STD) $(CFLAGS)
 	
-$(OBJDIR)/lexemes.o: src/lexer/lexemes.h src/lexer/lexemes.cpp
-	$(CC) -c src/lexer/lexemes.cpp -o $(OBJDIR)/lexemes.o -std=$(STD)
+$(OBJDIR)/lexemes.o: lexemes.cpp lexemes.h
+	$(CC) -c $< -o $@ -std=$(STD) $(CFLAGS)
 
-$(OBJDIR)/timer.o: src/misc/timer.h src/misc/timer.cpp
-	$(CC) -c src/misc/timer.cpp -o $(OBJDIR)/timer.o -std=$(STD)
+$(OBJDIR)/timer.o: timer.cpp timer.h
+	$(CC) -c $< -o $@ -std=$(STD) $(CFLAGS)
 
 clean-full: $(OBJDIR) $(BINDIR)
 	rm -r $(OBJDIR) $(BINDIR)

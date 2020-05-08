@@ -36,7 +36,7 @@ class LexemeStream { //Stream responsible for outputing lexemes.
 
     void finish(){ //Pushes an EOF lexeme and closed input of stream
         pushLexeme(
-            Lexeme(FILEEND, "EOF", 0, stream.size() + 1)
+            Lexeme(FILEEND, "EOF", -1, -1)
         );
         open = false;
     }

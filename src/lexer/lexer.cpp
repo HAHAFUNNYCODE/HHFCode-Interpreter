@@ -25,13 +25,17 @@ LexemeStream Lexer::tokenize(std::string &input){
 
     LexemeStream lexstream;
 
-    size_t index = 0; //uses index to store where the lexer is in the string
+    IndexTracker index; //uses index to store where the lexer is in the string
 
     while(index < input.size()){ //Continues until it reaches the end of the input
         char curC = input[index]; //looks at current character
         //Check for Whitespace
         if(whitespace.find(curC) != whitespace.end()){ //skips if whitespace
             index++;
+            if(curC == '\n')
+                index.addLine(1);
+            else
+                index.addCol(1);
             continue;
         }
 
@@ -56,6 +60,7 @@ LexemeStream Lexer::tokenize(std::string &input){
                 throw InvalidTokenException();
             if (type == KEYWORD){ //Checks if correct token
                 lexstream.pushLexeme(lex);
+                index.addCol(lex.getValue().size());
                 continue;
             }
         }
@@ -80,6 +85,7 @@ LexemeStream Lexer::tokenize(std::string &input){
                 throw InvalidTokenException();
             if (type == OPERATOR){ //Checks if correct token
                 lexstream.pushLexeme(lex);
+                index.addCol(lex.getValue().size());
                 continue;
             }
         }
@@ -88,9 +94,10 @@ LexemeStream Lexer::tokenize(std::string &input){
         //Separators are all one character in this, therefore simply adds lexeme with no need to check
         if(startChars[SEPARATOR].find(curC) != startChars[SEPARATOR].end()){
             std::string charS(1,curC);
-            Lexeme lex(SEPARATOR, charS, -1,-1);
+            Lexeme lex(SEPARATOR, charS, index.line, index.col);
             lexstream.pushLexeme(lex);
             index++;
+            index.addCol(1);
             continue;
         }
 
@@ -103,6 +110,7 @@ LexemeStream Lexer::tokenize(std::string &input){
                 throw InvalidTokenException();
             if (type == IDENTIFIER){ //Checks if correct token
                 lexstream.pushLexeme(lex);
+                index.addCol(lex.getValue().size());
                 continue;
             }
         }
@@ -187,9 +195,10 @@ std::shared_ptr<Trie> Trie::getRef(char c){
 
 std::string prettifyComment(std::string);
 
-Lexeme Lexer::getComment(std::string& input, size_t* index){
-    size_t indexfallback = *index; //In case need to go back to start
+Lexeme Lexer::getComment(std::string& input, IndexTracker* index){
+    IndexTracker indexfallback = *index; //In case need to go back to start
     std::shared_ptr<Trie> node = patterns[COMMENT].getRef(input[(*index)++]), prev; //Starts Trie
+    index->addCol(1);
     std::string value = "";
     char cur;
 
@@ -199,6 +208,10 @@ Lexeme Lexer::getComment(std::string& input, size_t* index){
         prev = node;
         cur = input[(*index)++];
         node = node->getRef(cur);
+        if(cur == '\n') 
+            index->addLine(1);
+        else
+            index->addCol(1);
     }
 
     std::string comment(1,cur); //Starts comment content
@@ -206,16 +219,23 @@ Lexeme Lexer::getComment(std::string& input, size_t* index){
     if(value == lineCommentStart){ //If the start matches line comment
         while(*index < input.size()){ //Gets all characters until next \n or EOF
             char cur = input[(*index)++];
+
             if(cur == '\n'){
-                (*index)++;
+                index->addLine(1);
                 break;
             }
             comment += cur;
         }
-        return Lexeme(COMMENT, comment, -1,-1); 
+        return Lexeme(COMMENT, comment, indexfallback.line, indexfallback.col);
+
     } else if(value == blockCommentStart){ //If matches block comment
         while(*index < input.size()){ //Gets characters until block comment end or EOF
             char cur = input[(*index)++];
+            if (cur == '\n'){
+                index->addLine(1);
+                continue;
+            }
+            index->addCol(1);
             comment += cur;
             std::shared_ptr<Trie> endNode = patterns[COMMENTEND].getRef(cur); //Tries to start Trie search
             
@@ -223,12 +243,16 @@ Lexeme Lexer::getComment(std::string& input, size_t* index){
                 cur = input[(*index)++];
                 comment += cur;
                 endNode = endNode->getRef(cur);
+                if(cur == '\n')
+                    index->addLine(1);
+                else
+                    index->addCol(1);
             }
 
             if(endNode && endNode->isEnding()){ //If full match, then found the end of the comment
                 comment.resize(comment.size() - blockCommentEnd.size());
                 size_t nlPos = comment.find('\n');
-                return Lexeme(COMMENT, prettifyComment(comment), -1, -1);
+                return Lexeme(COMMENT, prettifyComment(comment), indexfallback.line, indexfallback.col);
             }
         }
         //Comment blocks extending past EOF are invalid
@@ -240,28 +264,29 @@ Lexeme Lexer::getComment(std::string& input, size_t* index){
     return Lexeme();
 }
 
-Lexeme Lexer::getFromPattern(std::string& input, size_t* index, Token pat, bool needSep){
-    size_t indexfallback = *index;
+Lexeme Lexer::getFromPattern(std::string& input, IndexTracker* index, Token pat, bool needSep){
+    IndexTracker indexfallback = *index;
     std::shared_ptr<Trie> node = patterns[pat].getRef(input[(*index)++]), prev;
     std::string value = "";
 
     while (node && *index < input.size()){ //Does try serach
         value += node->getValue();
         prev = node;
-        node = node->getRef(input[(*index)++]);
+        char cur = input[(*index)++];
+        node = node->getRef(cur);
     }
 
     if(*index < input.size()){ //If not EOF yet
         (*index)--;
         if (prev && prev->isEnding()){ //If has a match, check last character
             if(!needSep){ //If last character doesn't matter, then just return
-                return Lexeme(pat, value, -1, -1);
+                return Lexeme(pat, value, indexfallback.line, indexfallback.col);
             }
             
             //Checks last character for whitespace or separator
             if( (whitespace.find(input[*index]) != whitespace.end() ) || 
                 startChars[SEPARATOR].find(input[*index]) != startChars[SEPARATOR].end()){
-                    return Lexeme(pat, value, -1, -1);
+                    return Lexeme(pat, value, indexfallback.line, indexfallback.col);
             } 
 
         }
@@ -269,11 +294,11 @@ Lexeme Lexer::getFromPattern(std::string& input, size_t* index, Token pat, bool 
 
     else{ //If EOF
         if(node && node->isEnding()){
-            return Lexeme(pat, value + node->getValue(), -1, -1);
+            return Lexeme(pat, value + node->getValue(), indexfallback.line, indexfallback.col);
         }
 
         if(!node && prev->isEnding()){
-            return Lexeme(pat, value, -1, -1);
+            return Lexeme(pat, value, indexfallback.line, indexfallback.col);
         }
     }
 
@@ -282,7 +307,7 @@ Lexeme Lexer::getFromPattern(std::string& input, size_t* index, Token pat, bool 
     return Lexeme();
 }
 
-Lexeme Lexer::getLiteral(std::string& input, size_t* index){
+Lexeme Lexer::getLiteral(std::string& input, IndexTracker* index){
     //Wrapper for different literal types
     char start = input[*index];
     if(start == '"'){ //For string
@@ -295,11 +320,17 @@ Lexeme Lexer::getLiteral(std::string& input, size_t* index){
     return getFromPattern(input, index, LITERAL);
 }
 
-Lexeme Lexer::getString(std::string& input, size_t* index){
-    size_t indexfallback = *index;
+Lexeme Lexer::getString(std::string& input, IndexTracker* index){
+    IndexTracker indexfallback = *index;
     std::string str(1,input[(*index)++]);
     bool foundEnd = false;
     while(!foundEnd && *index < input.size()){ //Looks for a non-escaped " char
+        if(input[*index] == '\n'){
+            (*index)++;
+            index->addLine(1);
+            continue;
+        }
+        index->addCol(1);
         if(input[*index] == '"' && input[(*index) - 1] != escapeChar){
             foundEnd = true;
         }
@@ -307,18 +338,18 @@ Lexeme Lexer::getString(std::string& input, size_t* index){
     }
 
     if(foundEnd) //If found, then that is the literal
-        return Lexeme(LITERAL, str, -1, -1);
+        return Lexeme(LITERAL, str, indexfallback.line, indexfallback.col);
 
     if(*index >= input.size()){ //If reached EOF, throws error
         *index = indexfallback;
-        return Lexeme(INVALID);
+        return Lexeme(INVALID, "", indexfallback.line, indexfallback.col);
     }
 
-    return Lexeme(INVALID);
+    return Lexeme(INVALID, "", indexfallback.line, indexfallback.col);
 }
 
-Lexeme Lexer::getNumber(std::string& input, size_t* index){
-    size_t indexfallback = *index;
+Lexeme Lexer::getNumber(std::string& input, IndexTracker* index){
+    IndexTracker indexfallback = *index;
     std::string number;
     bool passedPeriod = false; //Number can only have one period
 
@@ -332,6 +363,7 @@ Lexeme Lexer::getNumber(std::string& input, size_t* index){
         if('0' <= cur && cur <= '9'){
             number += cur;
             (*index)++;
+            index->addCol(1);
             continue;
         }
 
@@ -339,33 +371,34 @@ Lexeme Lexer::getNumber(std::string& input, size_t* index){
             if(!passedPeriod){
                 number += '.';
                 (*index)++;
+                index->addCol(1);
                 passedPeriod = true;
                 continue;
             } else{
-                return Lexeme(INVALID);
+                return Lexeme(INVALID, "", indexfallback.line, indexfallback.col);
             }
         }
 
         //Whitespace or Separator means stop
         if(whitespace.find(cur) != whitespace.end() || startChars[SEPARATOR].find(cur) != startChars[SEPARATOR].end()){
-            return Lexeme(LITERAL, number, -1, -1);
+            return Lexeme(LITERAL, number, indexfallback.line, indexfallback.col);
         }
 
         //Any other character is invalid
-        return Lexeme(INVALID);
+        return Lexeme(INVALID, "", indexfallback.line, indexfallback.col);
     }
     
     //If EOF, then make literal
     if(*index == input.size())
-        return Lexeme(LITERAL, number, -1, -1);
+        return Lexeme(LITERAL, number, indexfallback.line, indexfallback.col);
 
     *index = indexfallback;
-    return Lexeme(INVALID);
+    return Lexeme(INVALID, "", indexfallback.line, indexfallback.col);
 }
 
 //Looks for a string of valid identifier characters followed by whitespace, separator, or operator.
-Lexeme Lexer::getIdentifier(std::string& input, size_t* index){
-    size_t indexfallback = *index;
+Lexeme Lexer::getIdentifier(std::string& input, IndexTracker* index){
+    IndexTracker indexfallback = *index;
     std::string value(1,input[(*index)++]);
 
     while(*index < input.size() && identifierSet.find(input[*index]) != identifierSet.end()){
@@ -373,13 +406,13 @@ Lexeme Lexer::getIdentifier(std::string& input, size_t* index){
     }
 
     if(*index >= input.size()){
-        return Lexeme(IDENTIFIER, value, -1, -1);
+        return Lexeme(IDENTIFIER, value, indexfallback.line, indexfallback.col);
     }
 
     if(whitespace.find(input[*index]) != whitespace.end() ||
        startChars[SEPARATOR].find(input[*index]) != startChars[SEPARATOR].end() ||
        startChars[OPERATOR].find(input[*index]) != startChars[OPERATOR].end() ){
-           return Lexeme(IDENTIFIER, value, -1, -1);
+           return Lexeme(IDENTIFIER, value, indexfallback.line, indexfallback.col);
     }
 
     *index = indexfallback;
@@ -388,9 +421,11 @@ Lexeme Lexer::getIdentifier(std::string& input, size_t* index){
 
 std::string prettifyComment(std::string str){
     size_t nlPos;
+
     while((nlPos = str.find('\n')) != std::string::npos){
-        str.replace(nlPos, size_t(1), " ");
+        str.replace(nlPos, size_t(1), "");
     }
+
     while((nlPos = str.find("  ")) != std::string::npos){
         str.replace(nlPos, size_t(2), " ");
     }

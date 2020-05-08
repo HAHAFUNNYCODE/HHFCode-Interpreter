@@ -11,7 +11,7 @@ char escapeChar; //What will be used for escaped characters like \n
 std::string lineCommentStart, blockCommentStart, blockCommentEnd;
 
 std::string Lexeme::getString(){ //Returns a string representation of a lexeme
-    return lexemeNames[type] + '(' + value + ",ln" + std::to_string(line) + ')';
+    return lexemeNames[type] + '(' + value + ", line: " + std::to_string(line) + " column: " + std::to_string(column) + ')';
 }
 
 bool Lexeme::equals(const Lexeme& other){ //Checks Lexeme equality

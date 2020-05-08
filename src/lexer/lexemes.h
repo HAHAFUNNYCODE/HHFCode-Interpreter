@@ -48,7 +48,7 @@ class Lexeme{ //Represents a lexeme that can be parsed by the lexer
     inline Lexeme(Token type): //Can be made with just a type, good for INVALID Lexemes
         type(type), value(""), column(-1), line(-1){}
 
-    inline Lexeme(Token type, std::string value, int column, int line): //Provides all data
+    inline Lexeme(Token type, std::string value, int line, int column): //Provides all data
         type(type), value(value), column(column), line(line){}
     
     //Getters
