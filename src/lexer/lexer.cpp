@@ -269,6 +269,7 @@ Lexeme Lexer::getLiteral(std::string& input, IndexTracker* index){
 Lexeme Lexer::getString(std::string& input, IndexTracker* index){
     IndexTracker indexfallback = *index;
     std::string str(1,input[(*index)++]);
+    index->addCol(1);
     bool foundEnd = false;
     while(!foundEnd && *index < input.size()){ //Looks for a non-escaped " char
         if(input[*index] == '\n'){
