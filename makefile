@@ -5,11 +5,6 @@ BINDIR=bin
 BIN=hhfi
 STD=c++11
 
-main.o_DEPENDENCIES=main.cpp main.h lexer.h
-lexer.o_DEPENDENCIES=lexer.cpp lexer.h lexemes.h lexemestream.h
-lexemes.o_DEPENDENCIES=lexemes.cpp lexemes.h
-timer.o_DEPENDENCIES=timer.cpp timer.h
-
 ifeq ($(BUILDTYPE), debug)
 CFLAGS += -O0 -g
 else 
@@ -17,6 +12,12 @@ ifeq ($(BUILDTYPE), release)
 CFLAGS += -O3 -DNDEBUG
 endif
 endif
+
+main.o.dep=main.cpp main.h lexer.h
+lexer.o.dep=lexer.cpp lexer.h lexemes.h lexemestream.h
+lexemes.o.dep=lexemes.cpp lexemes.h
+timer.o.dep=timer.cpp timer.h
+trie.o.dep=trie.cpp trie.h
 
 vpath %.cpp src src/lexer src/misc
 vpath %.h src src/lexer src/misc
@@ -38,20 +39,12 @@ release:
 debug:
 	make force "BUILDTYPE=debug"
 
-$(OBJDIR)/main.o: main.cpp main.h lexer.h
+.SECONDEXPANSION:
+$(OBJDIR)/%.o: $$($$*.o.dep)
 	$(CC) -c $< -o $@ -std=$(STD) $(CFLAGS)
 
-$(OBJDIR)/lexer.o: lexer.cpp lexer.h lexemes.h lexemestream.h trie.h
-	$(CC) -c $< -o $@ -std=$(STD) $(CFLAGS)
-	
-$(OBJDIR)/lexemes.o: lexemes.cpp lexemes.h
-	$(CC) -c $< -o $@ -std=$(STD) $(CFLAGS)
-
-$(OBJDIR)/trie.o: trie.cpp trie.h
-	$(CC) -c $< -o $@ -std=$(STD) $(CFLAGS)
-
-$(OBJDIR)/timer.o: timer.cpp timer.h
-	$(CC) -c $< -o $@ -std=$(STD) $(CFLAGS)
+*.cpp:
+*.h:
 
 clean-full: $(OBJDIR) $(BINDIR)
 	rm -r $(OBJDIR) $(BINDIR)
