@@ -4,7 +4,7 @@
     for(var i = 0; i < 10; i++){
         if (i*i <= x){
             print(i,"^2 < ", x);
-        } else{
+        } elseif(i*i*i >= x) {
             print("NOPE!")
         }
     }

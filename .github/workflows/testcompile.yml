@@ -1,0 +1,16 @@
+name: CompilationTest
+
+on: [push, pull_request]
+
+jobs:
+  Compilation:
+    strategy:
+      matrix:
+        platform: ["ubuntu-latest", "macos-latest", "windows-latest"]
+    runs-on: ${{ matrix.platform }}
+
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Compile
+        run:  make
