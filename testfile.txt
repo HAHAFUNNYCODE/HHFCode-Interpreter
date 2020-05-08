@@ -1,0 +1,28 @@
+{
+    //Start of file
+    var x = 56;
+    for(var i = 0; i < 10; i++){
+        if (i*i <= x){
+            print(i,"^2 < ", x);
+        } else{
+            print("NOPE!")
+        }
+    }
+    //Second statement
+    /*This is a block
+    End of block */
+    var b = true;
+    if(x++==v){
+        print(x++);
+    } else{
+        while(x != b){
+            x++;
+        }
+    }
+    /* Line Block */
+    /*
+    Middle
+    */
+    var b2 = false;
+    var b3 = true;
+}

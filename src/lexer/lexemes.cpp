@@ -1,12 +1,20 @@
+#include <unordered_map>
+#include <unordered_set>
+
 #include "lexemes.h"
 
-std::unordered_map<Token, std::string, TokenHash> lexemeNames;
-std::unordered_map<Token, std::string, TokenHash> lexemeSymbols;
+std::unordered_map<Token, std::string, TokenHash> lexemeNames; //Names for the types of tokens
+std::unordered_map<Token, std::vector<std::string>, TokenHash> knownSymbols; //Patterns for each types of tokens
+std::unordered_map<Token, std::unordered_set<char>, TokenHash> startChars; //First character for the symbols of the tokens
+std::unordered_set<char> whitespace, identifierSet; //Useful sets for 
+char escapeChar; //What will be used for escaped characters like \n
+std::string lineCommentStart, blockCommentStart, blockCommentEnd;
 
-const int NUMKW = 5;
-std::array<std::string, NUMKW> keywords;
+std::string Lexeme::getString(){ //Returns a string representation of a lexeme
+    return lexemeNames[type] + '(' + value + ", line: " + std::to_string(line) + " column: " + std::to_string(column) + ')';
+}
 
-bool Lexeme::equals(const Lexeme& other){
+bool Lexeme::equals(const Lexeme& other){ //Checks Lexeme equality
         bool sameType = false; //Same type is assumed false
         bool sameVal = true; //Only care to check the value for certain tokens like Identifiers
         sameType = (other.type == type);
@@ -23,22 +31,16 @@ bool Lexeme::operator!=(const Lexeme& other){
     return !equals(other);
 }
 
-void initializeLexemes(){
-    keywords = {
-        "elseif",
-        "if",
-        "else",
-        "for",
-        "while"
-    }; 
+void initializeLexemes(){ //Sets values to maps and sets for tokens
 
-    lexemeNames = std::unordered_map<Token, std::string, TokenHash>({
+    lexemeNames = std::unordered_map<Token, std::string, TokenHash>({ //Names for string representation
         {UNKNOWN,		"UNKNOWN"},
         {INVALID,		"INVALID"},
         {FILEEND,       "EOF"},
 
         {IDENTIFIER,	"IDENTIFIER"},
         {LITERAL,		"LITERAL"},
+        {DECLARE,		"DECLARE"},
 
         {OPERATOR,		"OPERATOR"},
         {SEPARATOR,		"SEPARATOR"},
@@ -47,29 +49,40 @@ void initializeLexemes(){
         {COMMENT,		"COMMENT"},
     });
 
-    lexemeSymbols = std::unordered_map<Token, std::string, TokenHash>({
-        {UNKNOWN,		""},
-        {INVALID,		""},
-        {FILEEND,       "^[\\s]*(EOF)[\\s*]"},
-
-        {IDENTIFIER,	"^[\\s]*([\\w])"},
-        {LITERAL,		"LITERAL"},
-
-        {OPERATOR,		"^[\\s]*(+|-|*|/|%))"},
-        {SEPARATOR,		"^[\\s]*(\\(|\\)|\\[|\\]|\\{|\\}|;)"},
-        {KEYWORD,		""},
-
-        {COMMENT,		"^[\\s]*(?:\\/\\/([^\n]*)|\\/\\*((?:.|\\s)*?)\\*\\/)"},
+    knownSymbols = std::unordered_map<Token, std::vector<std::string>, TokenHash> ({ //Patterns to search for by token type
+        {OPERATOR,		{"+","-","*","/","%","=","==","<",">","<=",">=","!=", "++", "--", "+=", "-=", "*=", "/=", "%="}},
+        {SEPARATOR,		{";",":","(",")","[","]","{","}"}},
+        {KEYWORD,		{"if","else","elseif","for","while","var"}},
+        {LITERAL,		{"true","false"}},
+        {COMMENT,		{"//", "/*"}},
+		{COMMENTEND,	{"*/"}}
     });
-}
 
-void loadKeywords(){
-    std::string regex = "^(";
-    for(int i = 0; i < NUMKW; i++){
-        regex += keywords[i];
-        if (i < NUMKW-1) 
-            regex += '|';
-    }
-    regex += ')';
-    lexemeSymbols[KEYWORD] = regex;
+	startChars = std::unordered_map<Token, std::unordered_set<char>, TokenHash>({ //The starting characters of the patterns
+        {OPERATOR,		{'+','-','*','/','%','=','<','>','!'}},
+        {SEPARATOR,		{';',':','(',')','[',']','{','}', ','}},
+        {KEYWORD,		{'i','e','f','w', 'v'}},
+        {LITERAL,		{'t','f', '0','1','2','3','4','5','6','7','8','9','.','"'}},
+		{COMMENT,		{'/'}},
+		{COMMENTEND,	{'*'}}
+	});
+
+	whitespace = std::unordered_set<char>( //Characters that are considered whitespace
+		{' ', '\t', '\n'}
+	);
+
+	identifierSet = std::unordered_set<char>( //Characters that are valid for an identifier
+		{
+			'a','b','c','d','e','f','g','h','i','j','k','l','m',
+			'n','o','p','q','r','s','t','u','v','w','x','y','z',
+			'A','B','C','D','E','F','G','H','I','J','K','L','M',
+			'N','O','P','Q','R','S','T','U','V','W','X','Y','Z',
+			'0','1','2','3','4','5','6','7','8','9','_'
+		}
+	);
+
+    escapeChar = '\\';
+	lineCommentStart = "//";
+	blockCommentStart = "/*";
+	blockCommentEnd = "*/";
 }

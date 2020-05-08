@@ -4,25 +4,22 @@
 #include <queue>
 #include <exception>
 
-#include "lexemes.h"
+class Lexeme;
 
-class ClosedLexStreamException;
-class FinishedLexStreamException;
-
-class ClosedLexStreamException : std::exception {
+class ClosedLexStreamException : std::exception { //When trying to push to closed stream
     const char* what () const throw() {
         return "Cannot update closed stream.";
     }
 };
 
-class FinishedLexStreamException : std::exception {
+class FinishedLexStreamException : std::exception { //When trying to access values from stream with no values
     const char* what () const throw() {
         return "Tried to access value from ended stream";
     }
 };
 
 
-class LexemeStream {
+class LexemeStream { //Stream responsible for outputing lexemes.
     private:
     std::queue<Lexeme> stream;
     bool open, done;
@@ -30,7 +27,7 @@ class LexemeStream {
     public:
     LexemeStream(): open(true), done(false){}
 
-    void pushLexeme(Lexeme lex){
+    void pushLexeme(Lexeme lex){ //Adds to stream
         if (open) //If the stream is available to be pushed to, do so
             stream.push(lex);
         else //Otherwise throw excpetion
@@ -39,20 +36,28 @@ class LexemeStream {
 
     void finish(){ //Pushes an EOF lexeme and closed input of stream
         pushLexeme(
-            Lexeme(FILEEND, "EOF", 0, stream.size() + 1)
+            Lexeme(FILEEND, "EOF", -1, -1)
         );
         open = false;
     }
 
     Lexeme next(){ //Returns the next lexeme in the stream.
-        if (done)
+        if (done || stream.empty()) //If finished then throws exception
             throw FinishedLexStreamException();
 
         Lexeme nextLex = stream.front();
-        if (nextLex.getType() == FILEEND)
+        if (nextLex.getType() == FILEEND) //If file end token, ends stream
             done = true;
         stream.pop();
         return nextLex;
+    }
+
+    bool isOpen(){
+        return open;
+    }
+
+    bool isDone(){
+        return done;
     }
 };
 

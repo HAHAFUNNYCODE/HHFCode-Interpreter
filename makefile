@@ -1,42 +1,70 @@
 CC=g++
 OBJDIR=build
+OBJS := $(addprefix $(OBJDIR)/,main.o lexer.o lexemes.o timer.o)
 BINDIR=bin
 BIN=hhfi
 STD=c++11
 
-build: checkdir $(OBJDIR)/main.o $(OBJDIR)/parser.o $(OBJDIR)/interpreter.o $(OBJDIR)/lexer.o
-	$(CC) -o $(BINDIR)/$(BIN) $(OBJDIR)/*.o -std=$(STD)
+main.o_DEPENDENCIES=main.cpp main.h lexer.h
+lexer.o_DEPENDENCIES=lexer.cpp lexer.h lexemes.h lexemestream.h
+lexemes.o_DEPENDENCIES=lexemes.cpp lexemes.h
+timer.o_DEPENDENCIES=timer.cpp timer.h
 
-run: build
+ifeq ($(BUILDTYPE), debug)
+CFLAGS += -O0 -g
+else 
+ifeq ($(BUILDTYPE), release)
+CFLAGS += -O3 -DNDEBUG
+endif
+endif
+
+vpath %.cpp src src/lexer src/misc
+vpath %.h src src/lexer src/misc
+
+$(BINDIR)/$(BIN): $(OBJDIR) $(BINDIR) $(OBJS)
+	$(CC) $(OBJDIR)/*.o $(CFLAGS) -o $@
+
+run: $(BINDIR)/$(BIN)
 	./$(BINDIR)/$(BIN)
 
-$(OBJDIR)/main.o: src/main.h src/main.cpp $(OBJDIR)/lexer.o
-	$(CC) -c src/main.cpp -o $(OBJDIR)/main.o -std=$(STD)
+test: $(BINDIR)/$(BIN)
+	./$(BINDIR)/$(BIN) testfile.txt
 
-$(OBJDIR)/interpreter.o: src/interpreter.h src/interpreter.cpp
-	$(CC) -c src/interpreter.cpp -o $(OBJDIR)/interpreter.o -std=$(STD)
+force: clean $(OBJS) $(BINDIR)/$(BIN)
 
-$(OBJDIR)/parser.o: src/parser.h src/parser.cpp
-	$(CC) -c src/parser.cpp -o $(OBJDIR)/parser.o -std=$(STD)
+release:
+	make force "BUILDTYPE=release"
 
-$(OBJDIR)/lexer.o: $(OBJDIR)/lexemes.o src/lexer/lexer.h src/lexer/lexer.cpp  src/lexer/lexemestream.h
-	$(CC) -c src/lexer/lexer.cpp -o $(OBJDIR)/lexer.o -std=$(STD)
+debug:
+	make force "BUILDTYPE=debug"
+
+$(OBJDIR)/main.o: main.cpp main.h lexer.h
+	$(CC) -c $< -o $@ -std=$(STD) $(CFLAGS)
+
+$(OBJDIR)/interpreter.o: interpreter.cpp interpreter.h
+	$(CC) -c $< -o $@ -std=$(STD) $(CFLAGS)
+
+$(OBJDIR)/parser.o: parser.cpp parser.h 
+	$(CC) -c $< -o $@ -std=$(STD) $(CFLAGS)
+
+$(OBJDIR)/lexer.o: lexer.cpp lexer.h lexemes.h lexemestream.h
+	$(CC) -c $< -o $@ -std=$(STD) $(CFLAGS)
 	
-$(OBJDIR)/lexemes.o: src/lexer/lexemes.h src/lexer/lexemes.cpp
-	$(CC) -c src/lexer/lexemes.cpp -o $(OBJDIR)/lexemes.o -std=$(STD)
+$(OBJDIR)/lexemes.o: lexemes.cpp lexemes.h
+	$(CC) -c $< -o $@ -std=$(STD) $(CFLAGS)
 
-force:
-	$(CC) -c src/main.cpp -o $(OBJDIR)/main.o -std=$(STD)
-	$(CC) -c src/interpreter.cpp -o $(OBJDIR)/interpreter.o -std=$(STD)
-	$(CC) -c src/parser.cpp -o $(OBJDIR)/parser.o -std=$(STD)
-	$(CC) -c src/lexer/lexer.cpp -o $(OBJDIR)/lexer.o -std=$(STD)
-	$(CC) -c src/lexer/lexemes.cpp -o $(OBJDIR)/lexemes.o -std=$(STD)
-	$(CC) -o $(BINDIR)/$(BIN) $(OBJDIR)/*.o -std=$(STD)
+$(OBJDIR)/timer.o: timer.cpp timer.h
+	$(CC) -c $< -o $@ -std=$(STD) $(CFLAGS)
 
-clean:
-	rm build/*
-	rm bin/hhfi
+clean-full: $(OBJDIR) $(BINDIR)
+	rm -r $(OBJDIR) $(BINDIR)
 
-checkdir:
-	if ! [ -d "$(OBJDIR)" ]; then mkdir $(OBJDIR); fi
-	if ! [ -d "$(BINDIR)" ]; then mkdir $(BINDIR); fi
+clean: $(OBJDIR) $(BINDIR)
+	rm -f $(OBJDIR)/*
+	rm -f $(BINDIR)/*
+
+$(OBJDIR):
+	mkdir $(OBJDIR)
+
+$(BINDIR):
+	mkdir $(BINDIR)
