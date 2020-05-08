@@ -29,6 +29,8 @@ LexemeStream Lexer::tokenize(std::string &input){
 
     while(index < input.size()){ //Continues until it reaches the end of the input
         char curC = input[index]; //looks at current character
+        if(curC == EOF)
+            break;
         //Check for Whitespace
         if(whitespace.find(curC) != whitespace.end()){ //skips if whitespace
             index++;
