@@ -119,7 +119,7 @@ LexemeStream Lexer::tokenize(std::string &input){
 
         //If it gets here, either the interpreter is bad or the program is bad.
         throw InvalidTokenException("Nothing matched to language tokens. (Line: "
-         + std::to_string(index.line) + ", Column: " + std::to_string(index.col) + ")");
+         + std::to_string(index.line) + ", Column: " + std::to_string(index.col) + ") Character: " + curC);
 
     } 
 
