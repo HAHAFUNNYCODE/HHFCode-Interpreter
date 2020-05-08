@@ -1,4 +1,4 @@
-name: CompilationTest
+name: Run-Testfiles
 
 on: [push, pull_request]
 
