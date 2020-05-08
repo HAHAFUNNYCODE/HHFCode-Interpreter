@@ -20,9 +20,15 @@ class Timer{
     std::chrono::high_resolution_clock::time_point startpoint, end; //The start of the timer, end of timer;
     std::vector< std::chrono::high_resolution_clock::time_point> laps; //Times when the timer was lapped
     bool running;
-    TimerResolution resolution = MILLI;
+    TimerResolution resolution;
 
     public:
+    Timer():
+        running(false),resolution(MILLI){}
+
+    Timer(TimerResolution res):
+        running(false), resolution(res){}
+        
     void start(); //Can only run start and stop once.
     void stop();
     void lap(); //Adds to lap counter

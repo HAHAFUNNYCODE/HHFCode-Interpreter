@@ -20,8 +20,7 @@ int main(int argc, char* argv[]){ //Takes in command line arguments for the file
         inputStr = openFile(fname);
     }
 
-    Timer timer; //For testing really, starts a timer
-    timer.setResolution(MILLI);
+    Timer timer(MILLI); //For testing really, starts a timer
     timer.start();
     for(int i = 0; i < 10000; i++){
         try{ //Tries to have the data from the file tokenized. If it fails, it will raise
