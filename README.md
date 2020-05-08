@@ -1,8 +1,8 @@
 # HHFCode-Interpreter
 
 ### Master Branch
-![CompilationTest](https://github.com/HAHAFUNNYCODE/HHFCode-Interpreter/workflows/CompilationTest/badge.svg)
+![Run-Testfiles](https://github.com/HAHAFUNNYCODE/HHFCode-Interpreter/workflows/Run-Testfiles/badge.svg)
 
 
 ### Development Branch
-![CompilationTestDev](https://github.com/HAHAFUNNYCODE/HHFCode-Interpreter/workflows/CompilationTest/badge.svg?branch=misha-int)
+![Run-Testfiles-Dev](https://github.com/HAHAFUNNYCODE/HHFCode-Interpreter/workflows/Run-Testfiles/badge.svg?branch=misha-int)
