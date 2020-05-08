@@ -47,6 +47,8 @@ double Timer::getDuration(TimerResolution t){
         case NANO:
             return std::chrono::duration<double, std::nano>(end - startpoint).count();
     }
+
+    return -1;
 }
 
 std::vector<double> Timer::getLapTimes(TimerResolution t){
