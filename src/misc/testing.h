@@ -1,5 +1,6 @@
 #include <numeric>
 #include <vector>
+#include <algorithm>
 
 void MinMaxAvg(std::vector<double>& vals, double* min, double* max, double* avg){
     *min = *std::min_element(vals.begin(), vals.end());

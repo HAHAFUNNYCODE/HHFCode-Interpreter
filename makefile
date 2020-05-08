@@ -1,6 +1,6 @@
 CC=g++
 OBJDIR=build
-OBJS := $(addprefix $(OBJDIR)/,main.o lexer.o lexemes.o timer.o)
+OBJS := $(addprefix $(OBJDIR)/,main.o lexer.o lexemes.o timer.o trie.o)
 BINDIR=bin
 BIN=hhfi
 STD=c++11
@@ -41,16 +41,13 @@ debug:
 $(OBJDIR)/main.o: main.cpp main.h lexer.h
 	$(CC) -c $< -o $@ -std=$(STD) $(CFLAGS)
 
-$(OBJDIR)/interpreter.o: interpreter.cpp interpreter.h
-	$(CC) -c $< -o $@ -std=$(STD) $(CFLAGS)
-
-$(OBJDIR)/parser.o: parser.cpp parser.h 
-	$(CC) -c $< -o $@ -std=$(STD) $(CFLAGS)
-
-$(OBJDIR)/lexer.o: lexer.cpp lexer.h lexemes.h lexemestream.h
+$(OBJDIR)/lexer.o: lexer.cpp lexer.h lexemes.h lexemestream.h trie.h
 	$(CC) -c $< -o $@ -std=$(STD) $(CFLAGS)
 	
 $(OBJDIR)/lexemes.o: lexemes.cpp lexemes.h
+	$(CC) -c $< -o $@ -std=$(STD) $(CFLAGS)
+
+$(OBJDIR)/trie.o: trie.cpp trie.h
 	$(CC) -c $< -o $@ -std=$(STD) $(CFLAGS)
 
 $(OBJDIR)/timer.o: timer.cpp timer.h
