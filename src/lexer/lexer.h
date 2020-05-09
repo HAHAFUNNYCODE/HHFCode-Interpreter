@@ -11,7 +11,7 @@
 //Forward declarations
 class LexemeStream;
 class Trie;
-class IndexTracker;
+struct IndexTracker;
 class TokenHash;
 class LexerUninitializedException;
 

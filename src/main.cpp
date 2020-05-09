@@ -28,7 +28,7 @@ int main(int argc, char* argv[]){ //Takes in command line arguments for the file
             stream = lex.tokenize(inputStr);
         }catch(InvalidTokenException e){
             std::cout << "\e[91mERROR: \e[0m" << e.what() << std::endl;
-            throw e;
+            std::move(e);
         }
         timer.lap();
     }

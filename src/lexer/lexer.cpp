@@ -197,7 +197,6 @@ Lexeme Lexer::getComment(std::string& input, IndexTracker* index){
 
             if(endNode && endNode->isEnding()){ //If full match, then found the end of the comment
                 comment.resize(comment.size() - blockCommentEnd.size());
-                size_t nlPos = comment.find('\n');
                 return Lexeme(COMMENT, prettifyComment(comment), indexfallback.line, indexfallback.col);
             }
         }
