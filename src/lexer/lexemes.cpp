@@ -8,7 +8,7 @@
 #define VALUECOLOR "\e[94m"
 #define RESETFMT "\e[0m"
 #else
-#define KEYWORDBOLD ""
+#define KWEMPHASIS ""
 #define VALUECOLOR ""
 #define RESETCOLOR ""
 #endif
