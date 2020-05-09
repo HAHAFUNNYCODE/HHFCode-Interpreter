@@ -53,7 +53,7 @@ double Timer::getDuration(TimerResolution t){
 
 std::vector<double> Timer::getLapTimes(TimerResolution t){
     std::vector<double> lapDur;
-    for(int i = 0; i <= laps.size(); i++){
+    for(size_t i = 0; i <= laps.size(); i++){
         auto curLap = (i == laps.size())?end:laps[i];
         auto prevLap = (i == 0)?startpoint:laps[i-1];
         switch (t)

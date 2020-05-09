@@ -110,6 +110,7 @@ class InvalidTokenException : std::exception{ //Exception for an invalid token f
     public:
     InvalidTokenException(): message("A token was parsed that is unknown by the language"){};
     InvalidTokenException(std::string msg): message(msg){};
+    InvalidTokenException(const InvalidTokenException& e): message(e.what()){}
 
     const char* what () const throw() {
         return message.c_str();

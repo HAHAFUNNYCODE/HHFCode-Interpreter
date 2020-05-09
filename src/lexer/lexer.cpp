@@ -146,7 +146,7 @@ Lexeme Lexer::getComment(std::string& input, IndexTracker* index){
     std::shared_ptr<Trie> node = patterns[COMMENT].getRef(input[(*index)++]), prev; //Starts Trie
     index->addCol(1);
     std::string value = "";
-    char cur;
+    char cur = 0;
 
     //Searches for start pattern using try. If it stops matching then node will be nullptr (false)
     while (node && *index < input.size()){

@@ -23,6 +23,6 @@ class Trie{ //A node for a Trie data structure
     // void print();
 
     private:
-    void addPattern(std::string, int); //Recursive add pattern
+    void addPattern(std::string, size_t); //Recursive add pattern
     void print(std::string);
 };

@@ -4,7 +4,7 @@ void Trie::addPattern(std::string p){ //Calls the recursive one
     addPattern(p,0);
 }
 
-void Trie::addPattern(std::string p, int index){ //If node exists, adds to node, otherwise makes new node
+void Trie::addPattern(std::string p, size_t index){ //If node exists, adds to node, otherwise makes new node
     if (index > 0){ //Sets values for node (should this check if value exists? might be not worth it)
         value = p[index-1];
         //The reason this works is that the node only switches below

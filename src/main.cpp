@@ -26,9 +26,9 @@ int main(int argc, char* argv[]){ //Takes in command line arguments for the file
         try{ //Tries to have the data from the file tokenized. If it fails, it will raise
             // an InvalidTokenException which can be read
             stream = lex.tokenize(inputStr);
-        }catch(InvalidTokenException e){
+        }catch(InvalidTokenException& e){
             std::cout << "\e[91mERROR: \e[0m" << e.what() << std::endl;
-            std::move(e);
+            throw InvalidTokenException(e);
         }
         timer.lap();
     }
