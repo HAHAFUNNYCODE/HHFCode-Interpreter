@@ -15,8 +15,7 @@ void Trie::addPattern(std::string p, size_t index){ //If node exists, adds to no
     }
     char c = p[index];
 
-    if(charset.find(c) == charset.end()){ //Checks if current char is already a node, if not adds it.
-        charset.insert(c);
+    if(!refs[c]){ //Checks if current char is already a node, if not adds it.
         refs[c] = std::make_shared<Trie>();
     }
     refs[c]->addPattern(p, index+1); //Goes to next node
@@ -30,10 +29,7 @@ bool Trie::patternExists(std::string pat){
 
 //Gets the pointer to a node if it is linked to the current one, otherwise nullptr
 std::shared_ptr<Trie> Trie::getRef(char c){
-    if (charset.find(c) == charset.end())
-        return std::shared_ptr<Trie>(nullptr);
-    else
-        return refs[c];
+    return refs[c];
 }
 
 // void Trie::print(){

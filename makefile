@@ -14,7 +14,7 @@ CFLAGS += -O3 -DNDEBUG
 endif
 endif
 
-main.o.dep=main.cpp main.h lexer.h
+main.o.dep=main.cpp main.h lexer.h trie.h
 lexer.o.dep=lexer.cpp lexer.h lexemes.h lexemestream.h
 lexemes.o.dep=lexemes.cpp lexemes.h
 timer.o.dep=timer.cpp timer.h
