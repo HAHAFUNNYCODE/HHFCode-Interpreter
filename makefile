@@ -4,6 +4,7 @@ OBJS := $(addprefix $(OBJDIR)/,main.o lexer.o lexemes.o timer.o trie.o)
 BINDIR=bin
 BIN=hhfi
 STD=c++11
+CFLAGS=-Wall
 
 ifeq ($(BUILDTYPE), debug)
 CFLAGS += -O0 -g
