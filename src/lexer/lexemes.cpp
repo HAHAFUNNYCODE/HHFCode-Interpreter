@@ -10,7 +10,7 @@
 #else
 #define KWEMPHASIS ""
 #define VALUECOLOR ""
-#define RESETCOLOR ""
+#define RESETFMT ""
 #endif
 std::unordered_map<Token, std::string, TokenHash> lexemeNames; //Names for the types of tokens
 std::unordered_map<Token, std::vector<std::string>, TokenHash> knownSymbols; //Patterns for each types of tokens
