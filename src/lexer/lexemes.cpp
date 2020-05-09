@@ -3,6 +3,15 @@
 
 #include "lexemes.h"
 
+#if  defined(__APPLE__) || defined(__linux__) || defined(__unix__)
+#define KWEMPHASIS "\e[92m"
+#define VALUECOLOR "\e[94m"
+#define RESETFMT "\e[0m"
+#else
+#define KEYWORDBOLD ""
+#define VALUECOLOR ""
+#define RESETCOLOR ""
+#endif
 std::unordered_map<Token, std::string, TokenHash> lexemeNames; //Names for the types of tokens
 std::unordered_map<Token, std::vector<std::string>, TokenHash> knownSymbols; //Patterns for each types of tokens
 std::unordered_map<Token, std::unordered_set<char>, TokenHash> startChars; //First character for the symbols of the tokens
@@ -11,7 +20,10 @@ char escapeChar; //What will be used for escaped characters like \n
 std::string lineCommentStart, blockCommentStart, blockCommentEnd;
 
 std::string Lexeme::getString(){ //Returns a string representation of a lexeme
-    return lexemeNames[type] + '(' + value + ", line: " + std::to_string(line) + " column: " + std::to_string(column) + ')';
+    return KWEMPHASIS + lexemeNames[type] + RESETFMT + 
+    '(' + VALUECOLOR + value + RESETFMT + 
+    ", line: " + std::to_string(line) + 
+    " column: " + std::to_string(column) + ')';
 }
 
 bool Lexeme::equals(const Lexeme& other){ //Checks Lexeme equality
