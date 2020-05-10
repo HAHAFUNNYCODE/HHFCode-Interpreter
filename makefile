@@ -21,8 +21,11 @@ CFLAGS+=-v
 endif
 
 #Source file dependencies
-main.o.dep=main.cpp main.h lexer.h trie.h basiclexer.h
-lexer.o.dep=lexer.cpp lexer.h lexeme.h lexemestream.h
+main.o.dep=main.cpp main.h \
+lexer.h lexemestream.h lexeme.h basiclexer.h \
+trie.h timer.h testing.h
+
+lexer.o.dep=lexer.cpp lexer.h lexeme.h lexemestream.h trie.h
 lexeme.o.dep=lexeme.cpp lexeme.h
 timer.o.dep=timer.cpp timer.h
 trie.o.dep=trie.cpp trie.h
