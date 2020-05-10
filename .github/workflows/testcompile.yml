@@ -56,9 +56,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Make Binary Directory
-        run: mkdir bin
-
       - name: Get Binary
         uses: actions/download-artifact@v1
         with:
@@ -68,5 +65,10 @@ jobs:
         if: matrix.os != 'windows-latest'
         run: ls -R
 
-      - name: Run Testfile
-        run: bin/hhfi test/${{ matrix.file }}
+      - name: Run Testfile Unix
+        if: matrix.os != 'windows-latest'
+        run: bin${{ matrix.os }}/hhfi test/${{ matrix.file }}
+      
+      - name: Run Testfile Windows
+        if: matrix.os == 'windows-latest'
+        run: binwindows-latest/hhfi.exe test/${{ matrix.file }}
