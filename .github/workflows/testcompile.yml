@@ -29,6 +29,10 @@ jobs:
         with:
           name: bin${{ matrix.os }}
           path: bin/hhfi
+      
+      - name: Check folder
+        if: ${{matrix.os}} == "windows-latest"
+        run: dir bin
   
   Testing:
     needs: Compilation
