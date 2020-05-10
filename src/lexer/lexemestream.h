@@ -4,6 +4,8 @@
 #include <queue>
 #include <exception>
 
+namespace Lexer{
+
 class Lexeme;
 
 class ClosedLexStreamException : std::exception { //When trying to push to closed stream
@@ -60,5 +62,7 @@ class LexemeStream { //Stream responsible for outputing lexemes.
         return done;
     }
 };
+
+} //Namespace Lexer end
 
 #endif //LEXEMESTREAM_H

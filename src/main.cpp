@@ -8,8 +8,8 @@
 std::string openFile(std::string);
 
 int main(int argc, char* argv[]){ //Takes in command line arguments for the file which to open.
-    Lexer lex;
-    LexemeStream stream;
+    Lexer::Lexer lex;
+    Lexer::LexemeStream stream;
     lex.initialize(); //Sets up values for the lexer to use. Primarily allows lexemes to
     // set data and for tries to be generated.
 
@@ -26,9 +26,9 @@ int main(int argc, char* argv[]){ //Takes in command line arguments for the file
         try{ //Tries to have the data from the file tokenized. If it fails, it will raise
             // an InvalidTokenException which can be read
             stream = lex.tokenize(inputStr);
-        }catch(InvalidTokenException& e){
+        }catch(Lexer::InvalidTokenException& e){
             std::cout << "\e[91mERROR: \e[0m" << e.what() << std::endl;
-            throw InvalidTokenException(e);
+            throw Lexer::InvalidTokenException(e);
         }
         timer.lap();
     }

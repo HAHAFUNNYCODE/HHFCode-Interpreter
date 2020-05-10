@@ -1,5 +1,7 @@
 #include "trie.h"
 
+namespace Lexer{
+
 void Trie::addPattern(std::string p){ //Calls the recursive one
     addPattern(p,0);
 }
@@ -52,3 +54,5 @@ std::shared_ptr<Trie> Trie::getRef(char c){
 //         refs[c]->print(s+c);
 //     }
 // }
+
+} //Namespace Lexer end

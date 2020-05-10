@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+namespace Lexer{
+
 #ifndef TOKEN_E
 #define TOKEN_E
 enum Token{ //An enum for identifying tokens
@@ -77,5 +79,8 @@ class Lexeme{ //Represents a lexeme that can be parsed by the lexer
 };
 
 void initializeLexemes(); //Sets values
+
+} //Namespace Lexer end
+
 
 #endif //LEXEMES_H

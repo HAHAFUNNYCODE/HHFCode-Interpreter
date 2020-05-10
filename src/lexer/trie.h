@@ -3,6 +3,8 @@
 #include <memory>
 #include <string>
 
+namespace Lexer{
+
 class Trie{ //A node for a Trie data structure
     private:
     char value; //The value of the node
@@ -23,5 +25,7 @@ class Trie{ //A node for a Trie data structure
 
     private:
     void addPattern(std::string, size_t); //Recursive add pattern
-    void print(std::string);
+    // void print(std::string);
 };
+
+} //Namespace Lexer end

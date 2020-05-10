@@ -8,6 +8,8 @@
 
 #include "trie.h"
 
+namespace Lexer{
+
 //Forward declarations
 class LexemeStream;
 class Trie;
@@ -116,5 +118,7 @@ class InvalidTokenException : std::exception{ //Exception for an invalid token f
         return message.c_str();
     }
 };
+
+} //Namespace Lexer end
 
 #endif //LEXER_H

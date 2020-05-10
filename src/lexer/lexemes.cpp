@@ -12,6 +12,9 @@
 #define VALUECOLOR ""
 #define RESETFMT ""
 #endif
+
+namespace Lexer{
+
 std::unordered_map<Token, std::string, TokenHash> lexemeNames; //Names for the types of tokens
 std::unordered_map<Token, std::vector<std::string>, TokenHash> knownSymbols; //Patterns for each types of tokens
 std::unordered_map<Token, std::unordered_set<char>, TokenHash> startChars; //First character for the symbols of the tokens
@@ -98,3 +101,5 @@ void initializeLexemes(){ //Sets values to maps and sets for tokens
 	blockCommentStart = "/*";
 	blockCommentEnd = "*/";
 }
+
+} //Namespace Lexer end

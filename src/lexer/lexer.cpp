@@ -1,9 +1,10 @@
 #include <string>
-#include <iostream>
 
 #include "lexemes.h"
 #include "lexemestream.h"
 #include "lexer.h"
+
+namespace Lexer{
 
 class LexerUninitializedException : std::exception{ //Thrown if the lexer is used without initialization
     const char* what () const throw() {
@@ -377,3 +378,5 @@ std::string prettifyComment(std::string str){
     }
     return str;
 }
+
+} //Namespace Lexer end
