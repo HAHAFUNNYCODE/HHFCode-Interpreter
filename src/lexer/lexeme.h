@@ -45,6 +45,20 @@ class Lexeme{ //Represents a lexeme that can be parsed by the lexer
     static std::unordered_map<Token, std::string, TokenHash> lexemeNames;
 
     public:
+        class InvalidTokenException{
+            std::string message;
+
+            public:
+            InvalidTokenException(): message("A token was parsed that is unknown by the language"){};
+            InvalidTokenException(std::string msg): message(msg){};
+            InvalidTokenException(const InvalidTokenException& e): message(e.what()){}
+
+            const char* what () const throw() {
+                return message.c_str();
+            }
+        };
+
+    public:
     inline Lexeme(): //Defaults to unknown
         type(UNKNOWN), value(""), column(-1), line(-1){}
 

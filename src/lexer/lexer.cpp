@@ -7,7 +7,7 @@
 
 namespace Lexer{
 
-class LexerUninitializedException : std::exception{ //Thrown if the lexer is used without initialization
+class Lexer::LexerUninitializedException : std::exception{ //Thrown if the lexer is used without initialization
     const char* what () const throw() {
         return "The Lexer has not been initialized.";
     }
@@ -53,7 +53,7 @@ LexemeStream Lexer::tokenize(std::string &input){
             Lexeme lex = getComment(input, &index); //Runs specific function
             Token type = lex.getType(); //Checks token validity
             if (type == INVALID)
-                throw InvalidTokenException();
+                throw Lexeme::InvalidTokenException();
             if (type == COMMENT){ //Checks if correct token
                 lexstream.pushLexeme(lex);
                 continue;
@@ -65,7 +65,7 @@ LexemeStream Lexer::tokenize(std::string &input){
             Lexeme lex = getFromPattern(input, &index, KEYWORD); //General pattern search
             Token type = lex.getType(); //Checks token validity
             if (type == INVALID)
-                throw InvalidTokenException();
+                throw Lexeme::InvalidTokenException();
             if (type == KEYWORD){ //Checks if correct token
                 lexstream.pushLexeme(lex);
                 index.addCol(lex.getValue().size());
@@ -78,7 +78,7 @@ LexemeStream Lexer::tokenize(std::string &input){
             Lexeme lex = getLiteral(input, &index); //Specific function
             Token type = lex.getType(); //Checks token validity
             if (type == INVALID)
-                throw InvalidTokenException();
+                throw Lexeme::InvalidTokenException();
             if (type == LITERAL){ //Checks if correct token
                 lexstream.pushLexeme(lex);
                 continue;
@@ -90,7 +90,7 @@ LexemeStream Lexer::tokenize(std::string &input){
             Lexeme lex = getFromPattern(input, &index, OPERATOR, false); //General search
             Token type = lex.getType(); //Checks token validity
             if (type == INVALID)
-                throw InvalidTokenException();
+                throw Lexeme::InvalidTokenException();
             if (type == OPERATOR){ //Checks if correct token
                 lexstream.pushLexeme(lex);
                 index.addCol(lex.getValue().size());
@@ -115,7 +115,7 @@ LexemeStream Lexer::tokenize(std::string &input){
             Lexeme lex = getIdentifier(input, &index); //Specific function
             Token type = lex.getType(); //Checks token validity
             if (type == INVALID)
-                throw InvalidTokenException();
+                throw Lexeme::InvalidTokenException();
             if (type == IDENTIFIER){ //Checks if correct token
                 lexstream.pushLexeme(lex);
                 index.addCol(lex.getValue().size());
@@ -124,7 +124,7 @@ LexemeStream Lexer::tokenize(std::string &input){
         }
 
         //If it gets here, either the interpreter is bad or the program is bad.
-        throw InvalidTokenException("Nothing matched to language tokens. (Line: "
+        throw Lexeme::InvalidTokenException("Nothing matched to language tokens. (Line: "
          + std::to_string(index.line) + ", Column: " + std::to_string(index.col) + ") Character: " + std::to_string(int(curC)));
 
     } 

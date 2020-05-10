@@ -11,23 +11,23 @@ namespace Lexer{
 
 class Lexeme;
 
-class ClosedLexStreamException : std::exception { //When trying to push to closed stream
-    const char* what () const throw() {
-        return "Cannot update closed stream.";
-    }
-};
-
-class FinishedLexStreamException : std::exception { //When trying to access values from stream with no values
-    const char* what () const throw() {
-        return "Tried to access value from ended stream";
-    }
-};
-
-
 class LexemeStream { //Stream responsible for outputing lexemes.
     private:
     std::queue<Lexeme> stream;
     bool open, done;
+
+    public:
+    class ClosedLexStreamException : std::exception { //When trying to push to closed stream
+    const char* what () const throw() {
+        return "Cannot update closed stream.";
+        }
+    };
+
+    class FinishedLexStreamException : std::exception { //When trying to access values from stream with no values
+        const char* what () const throw() {
+            return "Tried to access value from ended stream";
+        }
+    };
 
     public:
     LexemeStream(): open(true), done(false){}

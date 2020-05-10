@@ -15,7 +15,6 @@ class LexemeStream;
 class Trie;
 struct IndexTracker;
 class TokenHash;
-class LexerUninitializedException;
 
 #ifndef TOKEN_E
 #define TOKEN_E
@@ -52,12 +51,17 @@ class Lexer{
         char escapeChar;
         std::string lineCommentStart, blockCommentStart, blockCommentEnd;
 
+    public:
+        class LexerUninitializedException;
+
     //Member functions
     public:
-        virtual LexemeStream tokenize(std::string& input);
-        virtual void loadPatterns();
         Lexer(){}
         virtual ~Lexer(){};
+
+        virtual void initialize(){};
+        virtual void loadPatterns();
+        virtual LexemeStream tokenize(std::string& input);
 
     private:
         //Lexeme getters for the Lexer to use in tokenize()
@@ -103,20 +107,6 @@ struct IndexTracker{
 
     inline operator size_t(){
         return index;
-    }
-};
-
-
-class InvalidTokenException : std::exception{ //Exception for an invalid token found when parsing
-    private:
-    std::string message;
-    public:
-    InvalidTokenException(): message("A token was parsed that is unknown by the language"){};
-    InvalidTokenException(std::string msg): message(msg){};
-    InvalidTokenException(const InvalidTokenException& e): message(e.what()){}
-
-    const char* what () const throw() {
-        return message.c_str();
     }
 };
 
