@@ -63,7 +63,7 @@ jobs:
 
       - name: Check Folders
         if: matrix.os != 'windows-latest'
-        run: ls -R
+        run: ls -l bin${{ matrix.os }} && chmod +x bin${{ matrix.os }}/*
 
       - name: Run Testfile Unix
         if: matrix.os != 'windows-latest'
