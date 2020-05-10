@@ -47,7 +47,7 @@ run: $(BINDIR)/$(BIN)
 	$(BINDIR)/$(BIN)
 
 test: $(BINDIR)/$(BIN)
-	./$(BINDIR)/$(BIN) testfile.txt
+	./$(BINDIR)/$(BIN) test/testfile.txt
 
 #Force a compilation and linkage with certain flags
 force: clean $(OBJS) $(BINDIR)/$(BIN)

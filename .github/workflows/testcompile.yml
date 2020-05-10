@@ -31,7 +31,7 @@ jobs:
           path: bin/hhfi
       
       - name: Check folder
-        if: ${{matrix.os}} == "windows-latest"
+        if: matrix.os == "windows-latest"
         run: dir bin
   
   Testing:
