@@ -16,8 +16,12 @@ CFLAGS += -O3 -DNDEBUG
 endif
 endif
 
-ifeq ($(VERBOSE), true)
+ifdef VERBOSE
 CFLAGS+=-v
+endif
+
+ifdef FATALWARN
+CFLAGS+=-Werror
 endif
 
 #Source file dependencies
@@ -53,6 +57,12 @@ release:
 
 debug:
 	make force "BUILDTYPE=debug"
+
+fatalwarn:
+	make force "FATALWARN=t"
+
+verbose:
+	make force "VERBOSE=t"
 
 #Compiles the source files to objects
 #Uses second expansion to determine dependencies from .o.dep variables
