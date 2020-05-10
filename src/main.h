@@ -1,9 +1,9 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#include "lexer/lexemes.h"
+#include "lexer/lexeme.h"
 #include "lexer/lexemestream.h"
-#include "lexer/lexer.h"
+#include "lexer/basiclexer.h"
 
 #include "util/timer.h"
 #include "util/testing.h"

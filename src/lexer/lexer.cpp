@@ -1,6 +1,7 @@
 #include <string>
+#include <memory>
 
-#include "lexemes.h"
+#include "lexeme.h"
 #include "lexemestream.h"
 #include "lexer.h"
 
@@ -12,10 +13,14 @@ class LexerUninitializedException : std::exception{ //Thrown if the lexer is use
     }
 };
 
-void Lexer::initialize(){ //Sets up values and loads patterns into Tries
-    initializeLexemes();
-    loadPatterns();
-    initialized = true;
+void Lexer::loadPatterns(){ //Takes all of the loaded lexeme symbols and puts them in Tries.
+    for(auto symbols : knownSymbols){
+        Trie t;
+        for(std::string symbol : symbols.second){
+            t.addPattern(symbol);
+        }
+        patterns[symbols.first] = t;
+    }
 }
 
 //Gets all tokens and puts them in a stream. 
@@ -129,16 +134,6 @@ LexemeStream Lexer::tokenize(std::string &input){
     return lexstream;
 }
 
-
-void Lexer::loadPatterns(){ //Takes all of the loaded lexeme symbols and puts them in Tries.
-    for(auto symbols : knownSymbols){
-        Trie t;
-        for(std::string symbol : symbols.second){
-            t.addPattern(symbol);
-        }
-        patterns[symbols.first] = t;
-    }
-}
 
 std::string prettifyComment(std::string);
 

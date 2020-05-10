@@ -2,7 +2,7 @@
 #define LEXEMES_H
 
 #include <string>
-#include <vector>
+#include <unordered_map>
 
 namespace Lexer{
 
@@ -42,6 +42,7 @@ class Lexeme{ //Represents a lexeme that can be parsed by the lexer
     Token type;
     std::string value;
     int column, line;
+    static std::unordered_map<Token, std::string, TokenHash> lexemeNames;
 
     public:
     inline Lexeme(): //Defaults to unknown
@@ -52,7 +53,7 @@ class Lexeme{ //Represents a lexeme that can be parsed by the lexer
 
     inline Lexeme(Token type, std::string value, int line, int column): //Provides all data
         type(type), value(value), column(column), line(line){}
-    
+
     //Getters
     inline Token       getType()       {return type;}
     inline std::string getValue()      {return value;}
@@ -77,8 +78,6 @@ class Lexeme{ //Represents a lexeme that can be parsed by the lexer
         }
     }
 };
-
-void initializeLexemes(); //Sets values
 
 } //Namespace Lexer end
 

@@ -3,6 +3,9 @@
 
 #include <queue>
 #include <exception>
+#include <memory>
+
+#include "lexeme.h"
 
 namespace Lexer{
 

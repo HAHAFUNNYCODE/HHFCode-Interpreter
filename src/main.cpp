@@ -6,10 +6,8 @@
 std::string openFile(std::string);
 
 int main(int argc, char* argv[]){ //Takes in command line arguments for the file which to open.
-    Lexer::Lexer lex;
+    Lexer::Lexer lex = Lexer::BasicLexer();
     Lexer::LexemeStream stream;
-    lex.initialize(); //Sets up values for the lexer to use. Primarily allows lexemes to
-    // set data and for tries to be generated.
 
     //Gets the input from a specified file
     std::string inputStr;

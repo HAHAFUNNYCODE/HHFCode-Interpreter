@@ -42,14 +42,22 @@ enum Token{ //Define token if not defined in lexemes.h
 class Lexer{
     //Member Variables
     private:
-        bool initialized; //Checks initialized
         std::unordered_map<Token, Trie, TokenHash> patterns; //For matching known symbols
+
+    protected:
+        bool initialized;
+        std::unordered_map<Token, std::vector<std::string>, TokenHash> knownSymbols;
+        std::unordered_map<Token, std::unordered_set<char>, TokenHash> startChars;
+        std::unordered_set<char> whitespace, identifierSet;
+        char escapeChar;
+        std::string lineCommentStart, blockCommentStart, blockCommentEnd;
 
     //Member functions
     public:
-        void initialize();
-        LexemeStream tokenize(std::string& input);
-        void loadPatterns();
+        virtual LexemeStream tokenize(std::string& input);
+        virtual void loadPatterns();
+        Lexer(){}
+        virtual ~Lexer(){};
 
     private:
         //Lexeme getters for the Lexer to use in tokenize()
@@ -98,13 +106,6 @@ struct IndexTracker{
     }
 };
 
-//Externals see lexemes.h
-extern std::unordered_map<Token, std::string, TokenHash> lexemeNames;
-extern std::unordered_map<Token, std::vector<std::string>, TokenHash> knownSymbols;
-extern std::unordered_map<Token, std::unordered_set<char>, TokenHash> startChars;
-extern std::unordered_set<char> whitespace, identifierSet;
-extern char escapeChar;
-extern std::string lineCommentStart, blockCommentStart, blockCommentEnd;
 
 class InvalidTokenException : std::exception{ //Exception for an invalid token found when parsing
     private:
