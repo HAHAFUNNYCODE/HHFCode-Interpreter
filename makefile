@@ -1,10 +1,10 @@
 CC=g++
 OBJDIR=build
-OBJS := $(addprefix $(OBJDIR)/,main.o lexer.o lexemes.o timer.o trie.o)
+OBJS := $(addprefix $(OBJDIR)/,main.o lexer.o lexeme.o timer.o trie.o)
 BINDIR=bin
 BIN=hhfi
 STD=c++11
-CFLAGS=-Wall
+CFLAGS=-Wall -I src
 
 ifeq ($(BUILDTYPE), debug)
 CFLAGS += -O0 -g
@@ -14,9 +14,13 @@ CFLAGS += -O3 -DNDEBUG
 endif
 endif
 
-main.o.dep=main.cpp main.h lexer.h trie.h
-lexer.o.dep=lexer.cpp lexer.h lexemes.h lexemestream.h
-lexemes.o.dep=lexemes.cpp lexemes.h
+ifeq ($(VERBOSE), true)
+CFLAGS+=-v
+endif
+
+main.o.dep=main.cpp main.h lexer.h trie.h basiclexer.h
+lexer.o.dep=lexer.cpp lexer.h lexeme.h lexemestream.h
+lexeme.o.dep=lexeme.cpp lexeme.h
 timer.o.dep=timer.cpp timer.h
 trie.o.dep=trie.cpp trie.h
 
