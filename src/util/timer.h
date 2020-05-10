@@ -6,17 +6,24 @@
 
 namespace Util{
 
+/**
+ * Allows for timing durations between starting and stopping.
+ * 
+ * A timer starts when Timer::start() is called and ends when
+ * Timer::stop() is called.
+*/
 class Timer{
     public:
-    enum TimerResolution{ //Orders of magnitude for time
+    ///Resolutions at which the timer is able to measure time.
+    enum TimerResolution{
         SECONDS,
         MILLI,
         MICRO,
         NANO
     };
 
-    class TimerRunningException; //Runs if the timer is running and an invalid operation is performed
-    class TimerFinishedException; //Runs if the timer is not running and an invalid operation is performed
+    class TimerRunningException; //See timer.cpp for documentaion
+    class TimerFinishedException; //See timer.cpp for documentaion
 
     //Member variables
     private:
@@ -26,13 +33,17 @@ class Timer{
     TimerResolution resolution;
 
     public:
+    ///Default constructor for a Timer. Defaults resolution to Milliseconds.
     Timer():
         running(false),resolution(MILLI){}
 
+    /** A constructor.
+     * Constructor for a Timer with set resolution.
+     * @param res The resolution that the timer will have. */
     Timer(TimerResolution res):
         running(false), resolution(res){}
-        
-    void start(); //Can only run start and stop once.
+
+    void start();
     void stop();
     void lap(); //Adds to lap counter
 
@@ -42,6 +53,9 @@ class Timer{
     std::vector<double> getLapTimes(TimerResolution);
     inline std::vector<double> getLapTimes(){return getLapTimes(resolution);}
 
+    /**
+     * A setter. Sets which resolution the timer stores.
+     * @param t The resolution to give the timer. */
     inline void setResolution(TimerResolution t){resolution = t;}
 };
 
