@@ -13,23 +13,42 @@ jobs:
   Compilation:
     strategy:
       matrix:
-        platform: ["ubuntu-latest", "macos-latest", "windows-latest"]
-    runs-on: ${{ matrix.platform }}
+        os: ["ubuntu-latest", "macos-latest", "windows-latest"]
+
+      fail-fast: true
+    runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v2
       
       - name: Compile
         run:  make release "FATALWARN=t"
+      
+      - name: Save Binary
+        uses: actions/upload-artifact@v1
+        with:
+          name: bin${{ matrix.os }}
+          path: bin/hhfi
   
   Testing:
+    needs: Compilation
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        platform: ["ubuntu-latest", "macos-latest", "windows-latest"]
-        file: ["test/testfile.txt"]
+        file: ["testfile.txt", "testfile2.txt"]
     
       fail-fast: true
 
     steps:
-      - name: Run testfile
-        run: bin/hhfi ${{ matrix.file }}
+      - uses: actions/checkout@v2
+
+      - name: Make Binary Directory
+        run: mkdir bin
+
+      - name: Get Binary
+        uses: actions/download-artifact@v1
+        with:
+          name: bin${{ matrix.os }}
+
+      - name: Run Testfile
+        run: bin/hhfi test/${{ matrix.file }}
