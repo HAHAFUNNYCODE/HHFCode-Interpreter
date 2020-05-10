@@ -20,8 +20,8 @@ lexemes.o.dep=lexemes.cpp lexemes.h
 timer.o.dep=timer.cpp timer.h
 trie.o.dep=trie.cpp trie.h
 
-vpath %.cpp src src/lexer src/misc
-vpath %.h src src/lexer src/misc
+vpath %.cpp src src/lexer src/util
+vpath %.h src src/lexer src/util
 
 $(BINDIR)/$(BIN): $(OBJDIR) $(BINDIR) $(OBJS)
 	$(CC) $(OBJDIR)/*.o $(CFLAGS) -o $@
