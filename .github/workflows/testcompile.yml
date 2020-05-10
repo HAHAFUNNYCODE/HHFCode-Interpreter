@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v2
       
       - name: Compile
-        run:  make release
+        run:  make release "FATALWARN=t"
       
       - name: Run testfile
         run: make test
