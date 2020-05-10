@@ -21,6 +21,15 @@ jobs:
       
       - name: Compile
         run:  make release "FATALWARN=t"
-      
+  
+  Testing:
+    strategy:
+      matrix:
+        platform: ["ubuntu-latest", "macos-latest", "windows-latest"]
+        file: ["test/testfile.txt"]
+    
+      fail-fast: true
+
+    steps:
       - name: Run testfile
-        run: make test
+        run: bin/hhfi ${{ matrix.file }}
