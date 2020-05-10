@@ -5,9 +5,9 @@ on:
     branches-ignore:
       - master
   
-  pull_request:
-    branches:
-      master
+  # pull_request:
+  #   branches:
+  #     master
 
 jobs:
   Compilation:
@@ -24,11 +24,19 @@ jobs:
       - name: Compile
         run:  make release "FATALWARN=t"
       
-      - name: Check folder
+      # - name: Check folder
+      #   if: matrix.os == 'windows-latest'
+      #   run: dir bin
+
+      - name: Save Exe
         if: matrix.os == 'windows-latest'
-        run: dir bin
-        
+        uses: actions/upload-artifact@v1
+        with:
+          name: bin${{ matrix.os }}
+          path: bin/hhfi.exe
+
       - name: Save Binary
+        if: matrix.os != 'windows-latest'
         uses: actions/upload-artifact@v1
         with:
           name: bin${{ matrix.os }}
