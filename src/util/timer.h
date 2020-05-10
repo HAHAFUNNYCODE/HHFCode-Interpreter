@@ -4,6 +4,8 @@
 #include <chrono>
 #include <vector>
 
+namespace Util{
+
 class TimerRunningException; //Runs if the timer is running and an invalid operation is performed
 class TimerFinishedException; //Runs if the timer is not running and an invalid operation is performed
 
@@ -41,5 +43,7 @@ class Timer{
 
     inline void setResolution(TimerResolution t){resolution = t;}
 };
+
+} //Namespace Util end
 
 #endif //TIMER_H

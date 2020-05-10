@@ -3,6 +3,9 @@
 
 #include "lexer/lexemes.h"
 #include "lexer/lexemestream.h"
-#include "misc/timer.h"
+#include "lexer/lexer.h"
+
+#include "util/timer.h"
+#include "util/testing.h"
 
 #endif //MAIN_H

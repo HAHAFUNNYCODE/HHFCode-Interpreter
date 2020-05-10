@@ -1,5 +1,7 @@
 #include "timer.h"
 
+namespace Util{
+
 class TimerRunningException{
     const char* what () const throw() {
         return "The timer is currently running";
@@ -75,3 +77,5 @@ std::vector<double> Timer::getLapTimes(TimerResolution t){
 
     return lapDur;
 }
+
+} //Namespace Util end
