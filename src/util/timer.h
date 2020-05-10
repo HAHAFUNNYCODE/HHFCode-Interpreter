@@ -6,17 +6,18 @@
 
 namespace Util{
 
-class TimerRunningException; //Runs if the timer is running and an invalid operation is performed
-class TimerFinishedException; //Runs if the timer is not running and an invalid operation is performed
-
-enum TimerResolution{ //Orders of magnitude for time
-    SECONDS,
-    MILLI,
-    MICRO,
-    NANO
-};
-
 class Timer{
+    public:
+    enum TimerResolution{ //Orders of magnitude for time
+        SECONDS,
+        MILLI,
+        MICRO,
+        NANO
+    };
+
+    class TimerRunningException; //Runs if the timer is running and an invalid operation is performed
+    class TimerFinishedException; //Runs if the timer is not running and an invalid operation is performed
+
     //Member variables
     private:
     std::chrono::high_resolution_clock::time_point startpoint, end; //The start of the timer, end of timer;

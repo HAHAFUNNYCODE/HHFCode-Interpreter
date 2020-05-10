@@ -2,13 +2,13 @@
 
 namespace Util{
 
-class TimerRunningException{
+class Timer::TimerRunningException{
     const char* what () const throw() {
         return "The timer is currently running";
     }
 };
 
-class TimerFinishedException{
+class Timer::TimerFinishedException{
     const char* what () const throw() {
         return "The timer is not currently running";
     }
