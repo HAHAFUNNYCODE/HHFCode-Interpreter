@@ -9,8 +9,6 @@
 
 namespace Lexer{
 
-class Lexeme;
-
 class LexemeStream { //Stream responsible for outputing lexemes.
     private:
     std::queue<Lexeme> stream;
