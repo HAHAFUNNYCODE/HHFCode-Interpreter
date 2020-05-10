@@ -6,29 +6,27 @@
 
 namespace Lexer{
 
-#ifndef TOKEN_E
-#define TOKEN_E
-enum Token{ //An enum for identifying tokens
-    UNKNOWN,
-    INVALID,
-    FILEEND,
+///An enum type.
+/**Represents the types of Tokens that the Lexer can find in a file*/
+enum Token{
+    UNKNOWN, /**< The token is currently unknown, but may still be valid*/
+    INVALID, /**< The token is not supported*/
+    FILEEND, /**< A token representing EOF*/
 
-    IDENTIFIER, //Variables
-    LITERAL,
-    DECLARE,
+    IDENTIFIER, /**< Used to identify variables and functions in the language*/
+    LITERAL, /**< Represent raw data literals*/
 
-    OPERATOR,
-    SEPARATOR,
-    KEYWORD,
+    OPERATOR, /**< Represents a language operator*/
+    SEPARATOR, /**< Represents a language separator*/
+    KEYWORD, /**< A keyword that is known by and reserved for the language*/
 
-    COMMENT,
-    COMMENTEND
+    COMMENT, /**< A line comment or comment blocks*/
+    COMMENTEND /**< The end of a comment block*/
 };
 
-#endif //TOKEN_E
-
-
-class TokenHash { //Hash function class for token (for maps)
+///A hash class.
+/**Used for hashing a token into a hashmap.*/
+class TokenHash {
 public: 
     inline size_t operator()(const Token& t) const
     {
@@ -37,7 +35,9 @@ public:
     } 
 };
 
-class Lexeme{ //Represents a lexeme that can be parsed by the lexer
+///A class for storing a lexeme.
+/** Represents a lexeme that can be parsed by the lexer.*/
+class Lexeme{
     private:
     Token type;
     std::string value;
@@ -45,42 +45,59 @@ class Lexeme{ //Represents a lexeme that can be parsed by the lexer
     static std::unordered_map<Token, std::string, TokenHash> lexemeNames;
 
     public:
+        ///A Lexeme exception.
+        /**An exception to be thrown when an Invalid Lexeme is found.*/
         class InvalidTokenException{
             std::string message;
 
             public:
+            ///A constructor.
+            /**Default constructor with message "A token was parsed that is unknown by the language."*/
             InvalidTokenException(): message("A token was parsed that is unknown by the language"){};
+
             InvalidTokenException(std::string msg): message(msg){};
             InvalidTokenException(const InvalidTokenException& e): message(e.what()){}
 
+            ///Returns the message stored in the exception
             const char* what () const throw() {
                 return message.c_str();
             }
         };
 
     public:
-    inline Lexeme(): //Defaults to unknown
+    inline Lexeme():
         type(UNKNOWN), value(""), column(-1), line(-1){}
 
-    inline Lexeme(Token type): //Can be made with just a type, good for INVALID Lexemes
+    inline Lexeme(Token type):
         type(type), value(""), column(-1), line(-1){}
 
     inline Lexeme(Token type, std::string value, int line, int column): //Provides all data
         type(type), value(value), column(column), line(line){}
 
-    //Getters
+    ///Getter.
+    /**Return the lexeme type. @returns The lexeme type.*/
     inline Token       getType()       {return type;}
+    ///Getter.
+    /**Return the lexeme value. @returns The lexeme value.*/
     inline std::string getValue()      {return value;}
+    ///Getter.
+    /**Return the lexeme column. @returns The lexeme column.*/
     inline int         getColumn()     {return column;}
+    ///Getter.
+    /**Return the lexeme line number. @returns The lexeme line number.*/
     inline int         getLineNumber() {return line;}
 
-    std::string getString(); //returns string representation
+    std::string getString();
 
     bool equals(const Lexeme& other);
     bool operator==(const Lexeme& other);
     bool operator!=(const Lexeme& other);
 
-    inline operator int() const { //Convert to integer for checking boolean
+    ///Convert Lexeme to int.
+    /** A converter of the Lexeme based on the type.
+     * The Lexeme evaluates to 0 if it is UNKNOWN, INVALID, or FILEEND, and 1 for everything else.
+    */
+    inline operator int() const {
     switch(type){
         case UNKNOWN:
         case INVALID:

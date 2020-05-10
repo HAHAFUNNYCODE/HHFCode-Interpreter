@@ -2,7 +2,8 @@
 
 namespace Lexer{
 
-void Trie::addPattern(std::string p){ //Calls the recursive one
+///Adds the pattern to the Trie
+void Trie::addPattern(std::string p){ //Calls the private recursive one
     addPattern(p,0);
 }
 
@@ -25,11 +26,11 @@ void Trie::addPattern(std::string p, size_t index){ //If node exists, adds to no
 
 
 //Do Later, not sure if needed
-bool Trie::patternExists(std::string pat){
-    return false;
-}
+// bool Trie::patternExists(std::string pat){
+//     return false;
+// }
 
-//Gets the pointer to a node if it is linked to the current one, otherwise nullptr
+///Gets a pointer to next node with given character value.
 std::shared_ptr<Trie> Trie::getRef(char c){
     return refs[c];
 }

@@ -7,6 +7,7 @@
 
 namespace Lexer{
 
+///A Lexer::Lexer Exception
 class Lexer::LexerUninitializedException : std::exception{ //Thrown if the lexer is used without initialization
     const char* what () const throw() {
         return "The Lexer has not been initialized.";
@@ -135,8 +136,17 @@ LexemeStream Lexer::tokenize(std::string &input){
 }
 
 
-std::string prettifyComment(std::string);
-
+/**
+ * @brief Tries to get a comment.
+ * @details It looks through the start of the string section and tries to match to either a
+ *  line or block comment start. If it finds a line comment, it will continue to search until
+ *  it finds a endline character or EOF. If it finds a block, it will match until closing sequence.
+ * 
+ * @param input A reference to the input data string.
+ * @param index A pointer to the index keeping track of file position.
+ * @returns COMMENT lexeme if a valid comment, UNKNOWN lexeme if starting sequence doesn't match,
+ *  INVALID lexeme if block comment hits EOF.
+ * */
 Lexeme Lexer::getComment(std::string& input, IndexTracker* index){
     IndexTracker indexfallback = *index; //In case need to go back to start
     std::shared_ptr<Trie> node = patterns[COMMENT].getRef(input[(*index)++]), prev; //Starts Trie
@@ -197,7 +207,7 @@ Lexeme Lexer::getComment(std::string& input, IndexTracker* index){
             }
         }
         //Comment blocks extending past EOF are invalid
-        return Lexeme(INVALID);
+        return Lexeme(INVALID, "", indexfallback.line, indexfallback.col);
     }
 
     //If starts to match to comment start but fails
@@ -205,6 +215,18 @@ Lexeme Lexer::getComment(std::string& input, IndexTracker* index){
     return Lexeme();
 }
 
+/**
+ * @brief Tries to get a pattern.
+ * @details It looks through the start of the string section and tries to match with any pattern
+ *  in the corresponding Trie. It continues until an invalid character is found or EOF.
+ * 
+ * @param input A reference to the input data string.
+ * @param index A pointer to the index keeping track of file position.
+ * @param pat The token representing which pattern to match
+ * @param needSep A flag to tell the function if a separator or whitespace is needed following
+ *  the pattern. Default true.
+ * @returns lexeme type specific in "pat" or UNKNOWN if it doesn't find a pattern.
+ * */
 Lexeme Lexer::getFromPattern(std::string& input, IndexTracker* index, Token pat, bool needSep){
     IndexTracker indexfallback = *index;
     std::shared_ptr<Trie> node = patterns[pat].getRef(input[(*index)++]), prev;
@@ -248,6 +270,8 @@ Lexeme Lexer::getFromPattern(std::string& input, IndexTracker* index, Token pat,
     return Lexeme();
 }
 
+
+///Tries to get a literal
 Lexeme Lexer::getLiteral(std::string& input, IndexTracker* index){
     //Wrapper for different literal types
     char start = input[*index];
@@ -261,6 +285,14 @@ Lexeme Lexer::getLiteral(std::string& input, IndexTracker* index){
     return getFromPattern(input, index, LITERAL);
 }
 
+/**
+ * @brief Tries to get a string.
+ * @details Starting from a " character, it looks for the next " character, skipping newlines.
+ * 
+ * @param input A reference to the input data string.
+ * @param index A pointer to the index keeping track of file position.
+ * @returns A LITERAL lexeme if it finds a second " character or INVALID if EOF.
+ * */
 Lexeme Lexer::getString(std::string& input, IndexTracker* index){
     IndexTracker indexfallback = *index;
     std::string str(1,input[(*index)++]);
@@ -290,6 +322,17 @@ Lexeme Lexer::getString(std::string& input, IndexTracker* index){
     return Lexeme(INVALID, "", indexfallback.line, indexfallback.col);
 }
 
+/**
+ * @brief Tries to get a number.
+ * @details Looks for either an integer or a floating point value. It stops when it hits an
+ *  operator, separator, or whitespace. It allows for numbers containing only digits,
+ *  containing a single '.' character in between, or starting with or ending with a '.' character.
+ * 
+ * @param input A reference to the input data string.
+ * @param index A pointer to the index keeping track of file position.
+ * @returns A LITERAL lexeme if it finds a valid number character or EOF or INVALID if it finds
+ *  a non-terminating character or multiple decimal points.
+ * */
 Lexeme Lexer::getNumber(std::string& input, IndexTracker* index){
     IndexTracker indexfallback = *index;
     std::string number;
@@ -338,7 +381,7 @@ Lexeme Lexer::getNumber(std::string& input, IndexTracker* index){
     return Lexeme(INVALID, "", indexfallback.line, indexfallback.col);
 }
 
-//Looks for a string of valid identifier characters followed by whitespace, separator, or operator.
+///Tries to get an identifier
 Lexeme Lexer::getIdentifier(std::string& input, IndexTracker* index){
     IndexTracker indexfallback = *index;
     std::string value(1,input[(*index)++]);
@@ -358,10 +401,17 @@ Lexeme Lexer::getIdentifier(std::string& input, IndexTracker* index){
     }
 
     *index = indexfallback;
-    return Lexeme(UNKNOWN, "", -1, -1);
+    return Lexeme();
 }
 
-std::string prettifyComment(std::string str){
+/**
+ * @brief Makes a string more pretty.
+ * @details Takes in a comment and strips away repeated whitespace and any newlines
+ *  found in the string.
+ * @param str The input comment to be prettified
+ * @returns The prettified comment
+ * */
+std::string Lexer::prettifyComment(std::string str){
     size_t nlPos;
 
     while((nlPos = str.find('\n')) != std::string::npos){

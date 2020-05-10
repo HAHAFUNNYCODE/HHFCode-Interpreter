@@ -1,5 +1,6 @@
 /**
  * @namespace Util
+ * @brief A utility namespace
  * @details Namespace storing various utility classes and functions.
 */
 

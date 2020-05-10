@@ -2,9 +2,15 @@
 #include "lexer.h"
 
 namespace Lexer{
-    
+
+/**
+ * @brief A Lexer Subclass.
+ * @details A Subclass of a Lexer that provides basic symbols for the lexer to use
+*/
 class BasicLexer : public Lexer{
     public:
+    ///A constructor that creates a BasicLexer.
+    /**Initializes lexemes as defined by the class and loads patterns into Tries.*/
     BasicLexer(){
         initializeLexemes();
         loadPatterns();

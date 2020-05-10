@@ -15,14 +15,13 @@
 
 namespace Lexer{
 
-std::unordered_map<Token, std::string, TokenHash> Lexeme::lexemeNames = { //Names for string representation
+std::unordered_map<Token, std::string, TokenHash> Lexeme::lexemeNames = {
     {UNKNOWN,		"UNKNOWN"},
     {INVALID,		"INVALID"},
     {FILEEND,       "EOF"},
 
     {IDENTIFIER,	"IDENTIFIER"},
     {LITERAL,		"LITERAL"},
-    {DECLARE,		"DECLARE"},
 
     {OPERATOR,		"OPERATOR"},
     {SEPARATOR,		"SEPARATOR"},
@@ -31,6 +30,10 @@ std::unordered_map<Token, std::string, TokenHash> Lexeme::lexemeNames = { //Name
     {COMMENT,		"COMMENT"},
 };
 
+
+///Gets a string representation of a Lexeme
+/** Returns a string formatted as "Type(Value, Line, Column)".
+ * @returns The string representation. */
 std::string Lexeme::getString(){ //Returns a string representation of a lexeme
     return KWEMPHASIS + lexemeNames[type] + RESETFMT + 
     '(' + VALUECOLOR + value + RESETFMT + 
