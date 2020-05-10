@@ -64,5 +64,9 @@ jobs:
         with:
           name: bin${{ matrix.os }}
 
+      - name: Check Folders
+        if: matrix.os != 'windows-latest'
+        run: ls -R
+
       - name: Run Testfile
         run: bin/hhfi test/${{ matrix.file }}
