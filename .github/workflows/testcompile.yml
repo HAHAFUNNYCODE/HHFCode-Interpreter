@@ -44,12 +44,14 @@ jobs:
   
   Testing:
     needs: Compilation
-    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
+        os: ["ubuntu-latest", "macos-latest", "windows-latest"]
         file: ["testfile.txt", "testfile2.txt"]
     
       fail-fast: true
+
+    runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v2
