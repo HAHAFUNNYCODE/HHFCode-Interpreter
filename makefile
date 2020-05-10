@@ -5,7 +5,7 @@ OBJS := $(addprefix $(OBJDIR)/,main.o lexer.o lexeme.o timer.o trie.o)
 BINDIR=bin
 BIN=hhfi
 STD=c++11
-CFLAGS=-Wall -I src
+CFLAGS=-Wall -Wextra -I src
 
 #Test user input variables
 ifeq ($(BUILDTYPE), debug)

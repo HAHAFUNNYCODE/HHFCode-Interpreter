@@ -95,13 +95,13 @@ struct IndexTracker{
     }
 
     ///Increases index by 1
-    size_t operator++(int n){
+    size_t operator++(int n __attribute__((unused))){
         index+=1;
         return index-1;
     }
 
     ///Decreases index by 1
-    size_t operator--(int n){
+    size_t operator--(int n __attribute__((unused))){
         index-=1;
         return index+1;
     }
