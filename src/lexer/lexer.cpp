@@ -282,7 +282,10 @@ Lexeme Lexer::getLiteral(std::string& input, IndexTracker* index){
     }
 
     //for word based literals like booleans
-    return getFromPattern(input, index, LITERAL);
+    Lexeme lex = getFromPattern(input, index, LITERAL);
+    if(lex.getType() == LITERAL)
+        index->addCol(lex.getValue().size());
+    return lex;
 }
 
 /**
