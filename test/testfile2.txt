@@ -1,0 +1,28 @@
+get library stdlib;
+//5 is a magic number
+var x = 5;
+for(var i = -x; i < x; i++){
+    var e = i*i; //E is i^2
+    print(e);
+    //15 is so big uwu
+    if(e >= 15){
+        print("WOW");
+    } else{
+        print("NOT WOW")
+    }
+    /*
+    Done exponent, want to count down
+*/
+    var b = false;
+    while(b!=true){
+        print(x);
+        if(x-- == 0){ /* while x > 0, count down */
+            b = true;
+        }
+
+        /*
+        WOW LOOPS
+        */
+    }
+    //End of file
+}

@@ -2,16 +2,12 @@
 #include <fstream>
 
 #include "main.h"
-#include "lexer/lexer.h"
-#include "misc/testing.h"
 
 std::string openFile(std::string);
 
 int main(int argc, char* argv[]){ //Takes in command line arguments for the file which to open.
-    Lexer lex;
-    LexemeStream stream;
-    lex.initialize(); //Sets up values for the lexer to use. Primarily allows lexemes to
-    // set data and for tries to be generated.
+    Lexer::Lexer lex = Lexer::BasicLexer();
+    Lexer::LexemeStream lexstream;
 
     //Gets the input from a specified file
     std::string inputStr;
@@ -20,28 +16,30 @@ int main(int argc, char* argv[]){ //Takes in command line arguments for the file
         inputStr = openFile(fname);
     }
 
-    Timer timer(MILLI); //For testing really, starts a timer
-    timer.start();
-    for(int i = 0; i < 1000; i++){
+    std::vector <double> times;
+
+    Util::Timer timer(Util::Timer::MILLI); //For testing really, starts a timer
+    for(int i = 0; i < 10000; i++){
+        Lexer::LexemeStream stream;
+        timer.start();
         try{ //Tries to have the data from the file tokenized. If it fails, it will raise
             // an InvalidTokenException which can be read
-            stream = lex.tokenize(inputStr);
-        }catch(InvalidTokenException e){
+            lex.tokenize(stream, inputStr);
+        }catch(Lexer::Lexeme::InvalidTokenException& e){
             std::cout << "\e[91mERROR: \e[0m" << e.what() << std::endl;
-            throw e;
+            throw Lexer::Lexeme::InvalidTokenException(e);
         }
-        timer.lap();
+        timer.stop();
+        times.push_back(timer.getDuration());
+        lexstream = stream;
     }
-    timer.stop();
 
-    std::vector <double> times = timer.getLapTimes();
-    times.pop_back();
     double min, max, avg;
-    MinMaxAvg(times, &min, &max, &avg);
+    Util::MinMaxAvg(times, &min, &max, &avg);
 
-    while (!stream.isDone()) //Continues while the stream still has something inside of it
+    while (!lexstream.isDone()) //Continues while the stream still has something inside of it
     {
-        std::cout << stream.next().getString() << std::endl;
+        std::cout << lexstream.next().getString() << std::endl;
     }
 
     // std::cout << timer.getDuration() << "ms" << std::endl; //Prints out the time it took

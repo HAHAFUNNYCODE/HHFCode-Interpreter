@@ -1,10 +1,13 @@
+# General Variables
 CC=g++
 OBJDIR=build
-OBJS := $(addprefix $(OBJDIR)/,main.o lexer.o lexemes.o timer.o trie.o)
+OBJS := $(addprefix $(OBJDIR)/,main.o lexer.o lexeme.o timer.o trie.o)
 BINDIR=bin
 BIN=hhfi
 STD=c++11
+CFLAGS=-Wall -Wextra -I src
 
+#Test user input variables
 ifeq ($(BUILDTYPE), debug)
 CFLAGS += -O0 -g
 else 
@@ -13,24 +16,40 @@ CFLAGS += -O3 -DNDEBUG
 endif
 endif
 
-main.o.dep=main.cpp main.h lexer.h
-lexer.o.dep=lexer.cpp lexer.h lexemes.h lexemestream.h
-lexemes.o.dep=lexemes.cpp lexemes.h
+ifdef VERBOSE
+CFLAGS+=-v
+endif
+
+ifdef FATALWARN
+CFLAGS+=-Werror
+endif
+
+#Source file dependencies
+main.o.dep=main.cpp main.h \
+lexer.h lexemestream.h lexeme.h basiclexer.h \
+trie.h timer.h testing.h
+
+lexer.o.dep=lexer.cpp lexer.h lexeme.h lexemestream.h trie.h
+lexeme.o.dep=lexeme.cpp lexeme.h
 timer.o.dep=timer.cpp timer.h
 trie.o.dep=trie.cpp trie.h
 
-vpath %.cpp src src/lexer src/misc
-vpath %.h src src/lexer src/misc
+#Paths to search for dependencies
+vpath %.cpp src src/lexer src/util
+vpath %.h src src/lexer src/util
 
+#For linking objects
 $(BINDIR)/$(BIN): $(OBJDIR) $(BINDIR) $(OBJS)
 	$(CC) $(OBJDIR)/*.o $(CFLAGS) -o $@
 
+#Runs Binary after linking
 run: $(BINDIR)/$(BIN)
-	./$(BINDIR)/$(BIN)
+	$(BINDIR)/$(BIN)
 
 test: $(BINDIR)/$(BIN)
-	./$(BINDIR)/$(BIN) testfile.txt
+	./$(BINDIR)/$(BIN) test/testfile.txt
 
+#Force a compilation and linkage with certain flags
 force: clean $(OBJS) $(BINDIR)/$(BIN)
 
 release:
@@ -39,6 +58,14 @@ release:
 debug:
 	make force "BUILDTYPE=debug"
 
+fatalwarn:
+	make force "FATALWARN=t"
+
+verbose:
+	make force "VERBOSE=t"
+
+#Compiles the source files to objects
+#Uses second expansion to determine dependencies from .o.dep variables
 .SECONDEXPANSION:
 $(OBJDIR)/%.o: $$($$*.o.dep)
 	$(CC) -c $< -o $@ -std=$(STD) $(CFLAGS)
@@ -46,6 +73,7 @@ $(OBJDIR)/%.o: $$($$*.o.dep)
 *.cpp:
 *.h:
 
+#Clean project from objects and binaries
 clean-full: $(OBJDIR) $(BINDIR)
 	rm -r $(OBJDIR) $(BINDIR)
 
@@ -53,6 +81,7 @@ clean: $(OBJDIR) $(BINDIR)
 	rm -f $(OBJDIR)/*
 	rm -f $(BINDIR)/*
 
+#Makes folders if don't exist
 $(OBJDIR):
 	mkdir $(OBJDIR)
 

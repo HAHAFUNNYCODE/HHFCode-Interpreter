@@ -5,115 +5,84 @@
 #include <vector>
 #include <unordered_set>
 #include <unordered_map>
+#include <functional>
 
 #include "trie.h"
+
+namespace Lexer{
 
 //Forward declarations
 class LexemeStream;
 class Trie;
-class IndexTracker;
+struct IndexTracker;
 class TokenHash;
-class LexerUninitializedException;
-
-#ifndef TOKEN_E
-#define TOKEN_E
-enum Token{ //Define token if not defined in lexemes.h
-    UNKNOWN,
-    INVALID,
-    FILEEND,
-
-    IDENTIFIER, //Variables
-    LITERAL,
-    DECLARE,
-
-    OPERATOR,
-    SEPARATOR,
-    KEYWORD,
-
-    COMMENT
-    COMMENTEND
-};
-
-#endif //TOKEN_E
 
 
+/**
+ * @brief A functional class for lexer operations.
+ * @details This class is used for doing lexical analysis on a string. It is a base class
+ *  with default implementaions for how it does the analysis in the tokenize function.
+ *  It is meant to be inherited with a constructor setting up the member data and calling
+ *  loadPatterns to initialize the lexer.
+ * */
 class Lexer{
     //Member Variables
     private:
-        bool initialized; //Checks initialized
+        typedef std::unordered_map<Token, std::function<Lexeme(std::string&, IndexTracker*)>, TokenHash> TokenFuncMap;
+        
         std::unordered_map<Token, Trie, TokenHash> patterns; //For matching known symbols
+
+    protected:
+        bool initialized;
+        std::unordered_map<Token, std::vector<std::string>, TokenHash> knownSymbols;
+        std::unordered_map<Token, std::unordered_set<char>, TokenHash> startChars;
+        std::unordered_set<char> whitespace, identifierSet;
+        char escapeChar;
+        std::string lineCommentStart, blockCommentStart, blockCommentEnd;
+
+    public:
+        class LexerUninitializedException; //See below
 
     //Member functions
     public:
-        void initialize();
-        LexemeStream tokenize(std::string& input);
-        void loadPatterns();
+        /**
+         * @brief A constructor. 
+         * @details The default constructor is blank, and starts unitialized.
+        */
+        Lexer():initialized(false){}
+        virtual ~Lexer(){};
 
-    private:
-        //Lexeme getters for the Lexer to use in tokenize()
-        Lexeme getFromPattern(std::string& input, IndexTracker* index, Token pat, bool needSep=true);
+        //Optional overloads
+        virtual void initialize(){};
+        virtual void loadPatterns();
+        virtual void tokenize(LexemeStream&, std::string&);
+
+    protected:
+        //Lexeme getters for the Lexer to use in tokenize(), not inherited
+        bool validateLexeme(Token type, Lexeme& lex);
+
         Lexeme getIdentifier(std::string& input, IndexTracker* index);
         Lexeme getComment(std::string& input, IndexTracker* index);
+        Lexeme getKeyword(std::string& input, IndexTracker* index);
+        Lexeme getOperator(std::string& input, IndexTracker* index);
+        Lexeme getSeparator(std::string& input, IndexTracker* index);
 
         Lexeme getLiteral(std::string& input, IndexTracker* index);
         Lexeme getString(std::string& input, IndexTracker* index);
         Lexeme getNumber(std::string& input, IndexTracker* index);
+
+        Lexeme getFromPattern(std::string& input, IndexTracker* index, Token pat, bool needSep=true);
+
+        std::string prettifyComment(std::string);
 };
 
-
-struct IndexTracker{
-    size_t index, line, col;
-
-    IndexTracker():index(0),line(1),col(1){}
-
-    IndexTracker(size_t index, size_t line, size_t col): 
-        index(index), line(line), col(col){}
-
-    IndexTracker(const IndexTracker& other):
-        index(other.index), line(other.line), col(other.col){}
-
-    void addLine(size_t n){
-        line += n;
-        col = 1;
-    }
-
-    void addCol(size_t n){
-        col += n;
-    }
-
-    size_t operator++(int n){
-        index+=1;
-        return index-1;
-    }
-
-    size_t operator--(int n){
-        index-=1;
-        return index+1;
-    }
-
-    inline operator size_t(){
-        return index;
-    }
-};
-
-//Externals see lexemes.h
-extern std::unordered_map<Token, std::string, TokenHash> lexemeNames;
-extern std::unordered_map<Token, std::vector<std::string>, TokenHash> knownSymbols;
-extern std::unordered_map<Token, std::unordered_set<char>, TokenHash> startChars;
-extern std::unordered_set<char> whitespace, identifierSet;
-extern char escapeChar;
-extern std::string lineCommentStart, blockCommentStart, blockCommentEnd;
-
-class InvalidTokenException : std::exception{ //Exception for an invalid token found when parsing
-    private:
-    std::string message;
-    public:
-    InvalidTokenException(): message("A token was parsed that is unknown by the language"){};
-    InvalidTokenException(std::string msg): message(msg){};
-
+///A Lexer::Lexer Exception
+class Lexer::LexerUninitializedException : std::exception{ //Thrown if the lexer is used without initialization
     const char* what () const throw() {
-        return message.c_str();
+        return "The Lexer has not been initialized.";
     }
 };
+
+} //Namespace Lexer end
 
 #endif //LEXER_H

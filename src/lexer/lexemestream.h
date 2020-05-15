@@ -3,45 +3,55 @@
 
 #include <queue>
 #include <exception>
+#include <memory>
 
-class Lexeme;
+#include "lexeme.h"
 
-class ClosedLexStreamException : std::exception { //When trying to push to closed stream
-    const char* what () const throw() {
-        return "Cannot update closed stream.";
-    }
-};
+namespace Lexer{
 
-class FinishedLexStreamException : std::exception { //When trying to access values from stream with no values
-    const char* what () const throw() {
-        return "Tried to access value from ended stream";
-    }
-};
-
-
+///A stream for receiving lexemes in order.
+/** Allows for Lexeme objects to be inserted and retrieved in a FIFO order.*/
 class LexemeStream { //Stream responsible for outputing lexemes.
     private:
     std::queue<Lexeme> stream;
     bool open, done;
 
     public:
+    ///A LexerStream Exception
+    class ClosedLexStreamException : std::exception { //When trying to push to closed stream
+    const char* what () const throw() {
+        return "Cannot update closed stream.";
+        }
+    };
+
+    ///A LexerStream Exception
+    class FinishedLexStreamException : std::exception { //When trying to access values from stream with no values
+        const char* what () const throw() {
+            return "Tried to access value from ended stream";
+        }
+    };
+
+    public:
+    ///A constructor
+    /** The constructor where the stream starts open and not done.*/
     LexemeStream(): open(true), done(false){}
 
-    void pushLexeme(Lexeme lex){ //Adds to stream
+    ///Adds Lexeme to stream
+    void pushLexeme(Lexeme lex){
         if (open) //If the stream is available to be pushed to, do so
             stream.push(lex);
         else //Otherwise throw excpetion
             throw ClosedLexStreamException();
     }
 
-    void finish(){ //Pushes an EOF lexeme and closed input of stream
-        pushLexeme(
-            Lexeme(FILEEND, "EOF", -1, -1)
-        );
+    ///Finishes and closes stream.
+    void finish(){ 
+        pushLexeme( Lexeme(FILEEND, "EOF", -1, -1) );
         open = false;
     }
 
-    Lexeme next(){ //Returns the next lexeme in the stream.
+    ///Gets the next Lexeme in the stream
+    Lexeme next(){
         if (done || stream.empty()) //If finished then throws exception
             throw FinishedLexStreamException();
 
@@ -52,13 +62,17 @@ class LexemeStream { //Stream responsible for outputing lexemes.
         return nextLex;
     }
 
+    ///Getter
     bool isOpen(){
         return open;
     }
 
+    ///Getter
     bool isDone(){
         return done;
     }
 };
+
+} //Namespace Lexer end
 
 #endif //LEXEMESTREAM_H
