@@ -27,6 +27,8 @@ class TokenHash;
 class Lexer{
     //Member Variables
     private:
+        typedef std::unordered_map<Token, std::function<Lexeme(std::string&, IndexTracker*)>, TokenHash> TokenFuncMap;
+        
         std::unordered_map<Token, Trie, TokenHash> patterns; //For matching known symbols
 
     protected:
@@ -54,7 +56,7 @@ class Lexer{
         virtual void loadPatterns();
         virtual void tokenize(LexemeStream&, std::string&);
 
-    private:
+    protected:
         //Lexeme getters for the Lexer to use in tokenize(), not inherited
         bool validateLexeme(Token type, Lexeme& lex);
 

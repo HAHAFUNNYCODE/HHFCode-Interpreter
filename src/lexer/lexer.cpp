@@ -27,7 +27,14 @@ void Lexer::tokenize(LexemeStream& stream, std::string &input){
 
     IndexTracker index; //uses index to store where the lexer is in the string
 
-    // std::array<Token, 6> tokenPriority = {COMMENT, KEYWORD, LITERAL, OPERATOR, SEPARATOR, IDENTIFIER};
+    std::array<Token, 6> tokenPriority = {SEPARATOR, KEYWORD, LITERAL, IDENTIFIER, COMMENT, OPERATOR};
+    TokenFuncMap tokenFuncs;
+    tokenFuncs[COMMENT] =    [this](std::string& str, IndexTracker* ind){return this->getComment(str,ind);};
+    tokenFuncs[KEYWORD] =    [this](std::string& str, IndexTracker* ind){return this->getKeyword(str,ind);};
+    tokenFuncs[LITERAL] =    [this](std::string& str, IndexTracker* ind){return this->getLiteral(str,ind);};
+    tokenFuncs[OPERATOR] =   [this](std::string& str, IndexTracker* ind){return this->getOperator(str,ind);};
+    tokenFuncs[SEPARATOR] =  [this](std::string& str, IndexTracker* ind){return this->getSeparator(str,ind);};
+    tokenFuncs[IDENTIFIER] = [this](std::string& str, IndexTracker* ind){return this->getIdentifier(str,ind);};
 
     while(index < input.size()){ //Continues until it reaches the end of the input
         char curC = input[index]; //looks at current character
@@ -43,67 +50,31 @@ void Lexer::tokenize(LexemeStream& stream, std::string &input){
             continue;
         }
 
-        if(startChars[COMMENT].find(curC) != startChars[COMMENT].end()){
-            Lexeme lex = getComment(input, &index);
-            if(validateLexeme(COMMENT, lex)){
-                stream.pushLexeme(lex);
-                continue;
+        auto it = tokenPriority.begin();
+        for(;it != tokenPriority.end(); it++){
+            if(startChars[*it].find(curC) != startChars[*it].end()){
+                Lexeme lex = tokenFuncs[*it](input, &index);
+                if(validateLexeme(*it, lex)){
+                    stream.pushLexeme(lex);
+                    break;
+                }
             }
         }
-
-        if(startChars[KEYWORD].find(curC) != startChars[KEYWORD].end()){
-            Lexeme lex = getKeyword(input, &index);
-            if(validateLexeme(KEYWORD, lex)){
-                stream.pushLexeme(lex);
-                continue;
-            }
-        }
-
-        if(startChars[LITERAL].find(curC) != startChars[LITERAL].end()){
-            Lexeme lex = getLiteral(input, &index);
-            if(validateLexeme(LITERAL, lex)){
-                stream.pushLexeme(lex);
-                continue;
-            }
-        }
-
-        if(startChars[OPERATOR].find(curC) != startChars[OPERATOR].end()){
-            Lexeme lex = getOperator(input, &index);
-            if(validateLexeme(OPERATOR, lex)){
-                stream.pushLexeme(lex);
-                continue;
-            }
-        }
-
-        if(startChars[SEPARATOR].find(curC) != startChars[SEPARATOR].end()){
-            Lexeme lex = getSeparator(input, &index);
-            if(validateLexeme(SEPARATOR, lex)){
-                stream.pushLexeme(lex);
-                continue;
-            }
-        }
-
-        if(startChars[IDENTIFIER].find(curC) != startChars[IDENTIFIER].end()){
-            Lexeme lex = getIdentifier(input, &index);
-            if(validateLexeme(IDENTIFIER, lex)){
-                stream.pushLexeme(lex);
-                continue;
-            }
-        }
+        if(it != tokenPriority.end())
+            continue;
 
         //If it gets here, either the interpreter is bad or the program is bad.
         throw Lexeme::InvalidTokenException("Nothing matched to language tokens. (Line: "
          + std::to_string(index.line) + ", Column: " + std::to_string(index.col) + ") Character: " + std::to_string(int(curC)));
 
     } 
-
-
+    
     stream.finish(); //Sends EOF to stream
 }
 
 bool Lexer::validateLexeme(Token type, Lexeme& lex){
-    Token lexType = lex.getType(); //Checks token validity
-    if (lexType == type){ //Checks if correct token
+    Token lexType = lex.getType();
+    if (lexType == type){
         return true;
     }
     if (lexType == INVALID)
