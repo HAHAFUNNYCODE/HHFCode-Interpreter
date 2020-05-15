@@ -1,18 +1,13 @@
 #include <string>
+#include <array>
 #include <memory>
 
 #include "lexeme.h"
 #include "lexemestream.h"
 #include "lexer.h"
+#include "indexTracker.h"
 
 namespace Lexer{
-
-///A Lexer::Lexer Exception
-class Lexer::LexerUninitializedException : std::exception{ //Thrown if the lexer is used without initialization
-    const char* what () const throw() {
-        return "The Lexer has not been initialized.";
-    }
-};
 
 void Lexer::loadPatterns(){ //Takes all of the loaded lexeme symbols and puts them in Tries.
     for(auto symbols : knownSymbols){
@@ -26,13 +21,13 @@ void Lexer::loadPatterns(){ //Takes all of the loaded lexeme symbols and puts th
 
 //Gets all tokens and puts them in a stream. 
 //Will throw exception if not initialized
-LexemeStream Lexer::tokenize(std::string &input){ 
+void Lexer::tokenize(LexemeStream& stream, std::string &input){ 
     if(!initialized)
         throw LexerUninitializedException();
 
-    LexemeStream lexstream;
-
     IndexTracker index; //uses index to store where the lexer is in the string
+
+    // std::array<Token, 6> tokenPriority = {COMMENT, KEYWORD, LITERAL, OPERATOR, SEPARATOR, IDENTIFIER};
 
     while(index < input.size()){ //Continues until it reaches the end of the input
         char curC = input[index]; //looks at current character
@@ -48,78 +43,50 @@ LexemeStream Lexer::tokenize(std::string &input){
             continue;
         }
 
-        //Check for comments
-        //If it is possible that this is a comment, looks through notation
         if(startChars[COMMENT].find(curC) != startChars[COMMENT].end()){
-            Lexeme lex = getComment(input, &index); //Runs specific function
-            Token type = lex.getType(); //Checks token validity
-            if (type == INVALID)
-                throw Lexeme::InvalidTokenException();
-            if (type == COMMENT){ //Checks if correct token
-                lexstream.pushLexeme(lex);
+            Lexeme lex = getComment(input, &index);
+            if(validateLexeme(COMMENT, lex)){
+                stream.pushLexeme(lex);
                 continue;
             }
         }
 
-        //Check for keywords
         if(startChars[KEYWORD].find(curC) != startChars[KEYWORD].end()){
-            Lexeme lex = getFromPattern(input, &index, KEYWORD); //General pattern search
-            Token type = lex.getType(); //Checks token validity
-            if (type == INVALID)
-                throw Lexeme::InvalidTokenException();
-            if (type == KEYWORD){ //Checks if correct token
-                lexstream.pushLexeme(lex);
-                index.addCol(lex.getValue().size());
+            Lexeme lex = getKeyword(input, &index);
+            if(validateLexeme(KEYWORD, lex)){
+                stream.pushLexeme(lex);
                 continue;
             }
         }
 
-        //Check for literals
         if(startChars[LITERAL].find(curC) != startChars[LITERAL].end()){
-            Lexeme lex = getLiteral(input, &index); //Specific function
-            Token type = lex.getType(); //Checks token validity
-            if (type == INVALID)
-                throw Lexeme::InvalidTokenException();
-            if (type == LITERAL){ //Checks if correct token
-                lexstream.pushLexeme(lex);
+            Lexeme lex = getLiteral(input, &index);
+            if(validateLexeme(LITERAL, lex)){
+                stream.pushLexeme(lex);
                 continue;
             }
         }
 
-        //Check for operators
         if(startChars[OPERATOR].find(curC) != startChars[OPERATOR].end()){
-            Lexeme lex = getFromPattern(input, &index, OPERATOR, false); //General search
-            Token type = lex.getType(); //Checks token validity
-            if (type == INVALID)
-                throw Lexeme::InvalidTokenException();
-            if (type == OPERATOR){ //Checks if correct token
-                lexstream.pushLexeme(lex);
-                index.addCol(lex.getValue().size());
+            Lexeme lex = getOperator(input, &index);
+            if(validateLexeme(OPERATOR, lex)){
+                stream.pushLexeme(lex);
                 continue;
             }
         }
 
-        //Check for separators
-        //Separators are all one character in this, therefore simply adds lexeme with no need to check
         if(startChars[SEPARATOR].find(curC) != startChars[SEPARATOR].end()){
-            std::string charS(1,curC);
-            Lexeme lex(SEPARATOR, charS, index.line, index.col);
-            lexstream.pushLexeme(lex);
-            index++;
-            index.addCol(1);
-            continue;
+            Lexeme lex = getSeparator(input, &index);
+            if(validateLexeme(SEPARATOR, lex)){
+                stream.pushLexeme(lex);
+                continue;
+            }
         }
 
-        //Check for Identifiers
-        //Checks to make sure that the first character is a non-digit letter or underscore.
-        if(identifierSet.find(curC) != identifierSet.end() && !('0' <= curC && curC <= '9')){
-            Lexeme lex = getIdentifier(input, &index); //Specific function
-            Token type = lex.getType(); //Checks token validity
-            if (type == INVALID)
-                throw Lexeme::InvalidTokenException();
-            if (type == IDENTIFIER){ //Checks if correct token
-                lexstream.pushLexeme(lex);
-                index.addCol(lex.getValue().size());
+        if(startChars[IDENTIFIER].find(curC) != startChars[IDENTIFIER].end()){
+            Lexeme lex = getIdentifier(input, &index);
+            if(validateLexeme(IDENTIFIER, lex)){
+                stream.pushLexeme(lex);
                 continue;
             }
         }
@@ -131,8 +98,18 @@ LexemeStream Lexer::tokenize(std::string &input){
     } 
 
 
-    lexstream.finish(); //Sends EOF to stream
-    return lexstream;
+    stream.finish(); //Sends EOF to stream
+}
+
+bool Lexer::validateLexeme(Token type, Lexeme& lex){
+    Token lexType = lex.getType(); //Checks token validity
+    if (lexType == type){ //Checks if correct token
+        return true;
+    }
+    if (lexType == INVALID)
+        throw Lexeme::InvalidTokenException();
+
+    return false;
 }
 
 
@@ -215,61 +192,10 @@ Lexeme Lexer::getComment(std::string& input, IndexTracker* index){
     return Lexeme();
 }
 
-/**
- * @brief Tries to get a pattern.
- * @details It looks through the start of the string section and tries to match with any pattern
- *  in the corresponding Trie. It continues until an invalid character is found or EOF.
- * 
- * @param input A reference to the input data string.
- * @param index A pointer to the index keeping track of file position.
- * @param pat The token representing which pattern to match
- * @param needSep A flag to tell the function if a separator or whitespace is needed following
- *  the pattern. Default true.
- * @returns lexeme type specific in "pat" or UNKNOWN if it doesn't find a pattern.
- * */
-Lexeme Lexer::getFromPattern(std::string& input, IndexTracker* index, Token pat, bool needSep){
-    IndexTracker indexfallback = *index;
-    std::shared_ptr<Trie> node = patterns[pat].getRef(input[(*index)++]), prev;
-    std::string value = "";
-
-    while (node && *index < input.size()){ //Does try serach
-        value += node->getValue();
-        prev = node;
-        char cur = input[(*index)++];
-        node = node->getRef(cur);
-    }
-
-    if(*index < input.size()){ //If not EOF yet
-        (*index)--;
-        if (prev && prev->isEnding()){ //If has a match, check last character
-            if(!needSep){ //If last character doesn't matter, then just return
-                return Lexeme(pat, value, indexfallback.line, indexfallback.col);
-            }
-            
-            //Checks last character for whitespace or separator
-            if( (whitespace.find(input[*index]) != whitespace.end() ) || 
-                startChars[SEPARATOR].find(input[*index]) != startChars[SEPARATOR].end()){
-                    return Lexeme(pat, value, indexfallback.line, indexfallback.col);
-            } 
-
-        }
-    }
-
-    else{ //If EOF
-        if(node && node->isEnding()){
-            return Lexeme(pat, value + node->getValue(), indexfallback.line, indexfallback.col);
-        }
-
-        if(!node && prev->isEnding()){
-            return Lexeme(pat, value, indexfallback.line, indexfallback.col);
-        }
-    }
-
-    //If fails, go back to start of match
-    *index = indexfallback;
-    return Lexeme();
+///Returns a language keyword from pattern.
+Lexeme Lexer::getKeyword(std::string& input, IndexTracker* index){
+    return getFromPattern(input, index, KEYWORD);
 }
-
 
 ///Tries to get a literal
 Lexeme Lexer::getLiteral(std::string& input, IndexTracker* index){
@@ -283,8 +209,6 @@ Lexeme Lexer::getLiteral(std::string& input, IndexTracker* index){
 
     //for word based literals like booleans
     Lexeme lex = getFromPattern(input, index, LITERAL);
-    if(lex.getType() == LITERAL)
-        index->addCol(lex.getValue().size());
     return lex;
 }
 
@@ -384,25 +308,105 @@ Lexeme Lexer::getNumber(std::string& input, IndexTracker* index){
     return Lexeme(INVALID, "", indexfallback.line, indexfallback.col);
 }
 
+///Returns operator based on pattern
+Lexeme Lexer::getOperator(std::string& input, IndexTracker* index){
+    return getFromPattern(input, index, OPERATOR, false);
+}
+
+///Returns single character separator
+Lexeme Lexer::getSeparator(std::string& input, IndexTracker* index){
+    std::string charS(1,input[(*index)++]);
+    Lexeme lex(SEPARATOR, charS, index->line, index->col);
+    index->addCol(1);
+    return lex;
+}
+
 ///Tries to get an identifier
 Lexeme Lexer::getIdentifier(std::string& input, IndexTracker* index){
     IndexTracker indexfallback = *index;
-    std::string value(1,input[(*index)++]);
+    
+    char c = input[*index];
+    if('0' <= c && c <= '9') //Identifiers can't start with a digit
+        return Lexeme();
+
+    std::string value(1,c);
+    (*index)++;
 
     while(*index < input.size() && identifierSet.find(input[*index]) != identifierSet.end()){
         value += input[(*index)++];
     }
 
     if(*index >= input.size()){
+        index->addCol(value.size());
         return Lexeme(IDENTIFIER, value, indexfallback.line, indexfallback.col);
     }
 
     if(whitespace.find(input[*index]) != whitespace.end() ||
        startChars[SEPARATOR].find(input[*index]) != startChars[SEPARATOR].end() ||
        startChars[OPERATOR].find(input[*index]) != startChars[OPERATOR].end() ){
+           index->addCol(value.size());
            return Lexeme(IDENTIFIER, value, indexfallback.line, indexfallback.col);
     }
 
+    *index = indexfallback;
+    return Lexeme();
+}
+
+/**
+ * @brief Tries to get a pattern.
+ * @details It looks through the start of the string section and tries to match with any pattern
+ *  in the corresponding Trie. It continues until an invalid character is found or EOF.
+ * 
+ * @param input A reference to the input data string.
+ * @param index A pointer to the index keeping track of file position.
+ * @param pat The token representing which pattern to match
+ * @param needSep A flag to tell the function if a separator or whitespace is needed following
+ *  the pattern. Default true.
+ * @returns lexeme type specific in "pat" or UNKNOWN if it doesn't find a pattern.
+ * */
+Lexeme Lexer::getFromPattern(std::string& input, IndexTracker* index, Token pat, bool needSep){
+    IndexTracker indexfallback = *index;
+    std::shared_ptr<Trie> node = patterns[pat].getRef(input[(*index)++]), prev;
+    std::string value = "";
+
+    while (node && *index < input.size()){ //Does try serach
+        value += node->getValue();
+        prev = node;
+        char cur = input[(*index)++];
+        node = node->getRef(cur);
+    }
+
+    if(*index < input.size()){ //If not EOF yet
+        (*index)--;
+        if (prev && prev->isEnding()){ //If has a match, check last character
+            if(!needSep){ //If last character doesn't matter, then just return
+                index->addCol(value.size());
+                return Lexeme(pat, value, indexfallback.line, indexfallback.col);
+            }
+            
+            //Checks last character for whitespace or separator
+            if( (whitespace.find(input[*index]) != whitespace.end() ) || 
+                startChars[SEPARATOR].find(input[*index]) != startChars[SEPARATOR].end()){
+                    index->addCol(value.size());
+                    return Lexeme(pat, value, indexfallback.line, indexfallback.col);
+            } 
+
+        }
+    }
+
+    else{ //If EOF
+        if(node && node->isEnding()){
+            index->addCol(value.size());
+            return Lexeme(pat, value + node->getValue(), indexfallback.line, indexfallback.col);
+        }
+
+        if(!node && prev->isEnding()){
+            index->addCol(value.size());
+            return Lexeme(pat, value, indexfallback.line, indexfallback.col);
+        }
+    }
+
+    //If fails, go back to start of match
     *index = indexfallback;
     return Lexeme();
 }

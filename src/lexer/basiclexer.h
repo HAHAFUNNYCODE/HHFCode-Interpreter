@@ -1,3 +1,6 @@
+#ifndef BASICLEXER_H
+#define BASICLEXER_H
+
 #include "lexeme.h"
 #include "lexer.h"
 
@@ -51,6 +54,8 @@ class BasicLexer : public Lexer{
             }
         );
 
+        startChars[IDENTIFIER] = identifierSet;
+
         escapeChar = '\\';
         lineCommentStart = "//";
         blockCommentStart = "/*";
@@ -60,3 +65,5 @@ class BasicLexer : public Lexer{
 };
 
 } //Namespace Lexer end
+
+#endif //BASICLEXER_H
